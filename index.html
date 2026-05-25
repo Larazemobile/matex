@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Matex — Aventura de Matemáticas</title>
+<title>Matex — Juego de Matemáticas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -296,7 +296,7 @@ function defaultData(){
     onboarded: false,
     stars: { mult:{}, suma:{}, resta:{} },     // mult: por tabla 1..10 ; suma/resta: por dificultad
     stats: {
-      totalAnswered:0, totalCorrect:0, bestStreak:0,
+      totalAnswered:0, totalCorrect:0, bestStreak:0, sessions:0, days:0, lastDay:"",
       mult:{correct:0, perTable:{}},
       suma:{correct:0}, resta:{correct:0},
       exams:{completed:0, perfect:0, perfectHard:0}
@@ -522,8 +522,8 @@ function renderHome(){
   + '<div class="hero block">'
   +   '<div class="big-av">'+avatarSVG(DATA.avatar)+'</div>'
   +   '<div class="htxt">'
-  +     '<h2>¡Hola, '+escapeHtml(DATA.name||"explorador")+'!</h2>'
-  +     '<p>¿Listo para tu aventura de hoy? Elige un mundo para entrenar.</p>'
+  +     '<h2>¡Hola, '+escapeHtml(DATA.name||"jugador")+'!</h2>'
+  +     '<p>¿Listo para jugar hoy? Elige un mundo para entrenar.</p>'
   +     '<div class="stat-row">'
   +       '<div class="stat">✅ <b>'+s.totalCorrect+'</b> aciertos</div>'
   +       '<div class="stat">🔥 mejor racha <b>'+s.bestStreak+'</b></div>'
@@ -594,7 +594,9 @@ function renderStudy(){
     html+='<div class="study-row"><span>'+t+' × '+i+' =</span> '+r+'</div>';
   }
   html+='</div><div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">';
-  html+='<div class="btn teal sm" onclick="toggleStudy()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:6px"><path d="M12 5C5 5 1 12 1 12s4 7 11 7 11-7 11-7-4-7-11-7zm0 3a4 4 0 110 8 4 4 0 010-8z"/></svg>'+(STUDY.hidden?'Mostrar respuestas':'Ocultar respuestas')+'</div>';
+  var _eo='<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="margin-right:7px"><path d="M12 5C5 5 1 12 1 12s4 7 11 7 11-7 11-7-4-7-11-7zm0 3a4 4 0 110 8 4 4 0 010-8z"/></svg>';
+  var _ex='<svg width="15" height="15" viewBox="0 0 24 24" style="margin-right:7px"><path fill="currentColor" d="M12 5C5 5 1 12 1 12s4 7 11 7 11-7 11-7-4-7-11-7zm0 3a4 4 0 110 8 4 4 0 010-8z"/><line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
+  html+='<div class="btn '+(STUDY.hidden?'orange':'teal')+' sm" style="display:inline-flex;align-items:center;justify-content:center" onclick="toggleStudy()">'+(STUDY.hidden?_eo:_ex)+(STUDY.hidden?'Mostrar respuestas':'Ocultar respuestas')+'</div>';
   html+='<div class="btn green" onclick="startQuiz(\'mult\','+t+',\'Tabla del '+t+'\',false)">¡A practicar!</div>';
   html+='</div></div>';
   $("screen").innerHTML=html; window.scrollTo(0,0);
@@ -941,6 +943,9 @@ function finishQuiz(){
     DATA.stats.exams.completed++;
     if(score===total){ DATA.stats.exams.perfect++; if(QUIZ.diff==="dificil") DATA.stats.exams.perfectHard++; }
   }
+  DATA.stats.sessions = (DATA.stats.sessions||0) + 1;
+  var hoy = new Date().toISOString().slice(0,10);
+  if(DATA.stats.lastDay !== hoy){ DATA.stats.days = (DATA.stats.days||0) + 1; DATA.stats.lastDay = hoy; }
   saveData();
   var newly = checkAchievements();
   renderResults(score,total,stars,newly);
@@ -1036,6 +1041,8 @@ function renderProgress(){
     + '<div class="stat">Mejor racha <b>'+s.bestStreak+'</b></div>'
     + '<div class="stat">Exámenes <b>'+s.exams.completed+'</b></div>'
     + '<div class="stat">Perfectos <b>'+s.exams.perfect+'</b></div>'
+    + '<div class="stat">Sesiones practicadas <b>'+(s.sessions||0)+'</b></div>'
+    + '<div class="stat">Días practicando <b>'+(s.days||0)+'</b></div>'
     + '</div>'
     + '<div style="margin-top:16px"><div class="btn red sm" onclick="confirmReset()">Reiniciar todo el progreso</div></div>'
     + '</div>';
@@ -1094,7 +1101,7 @@ function pickAv(i){
 }
 function saveProfile(){
   var n=$("nameInput").value.trim();
-  DATA.name = n || "Explorador";
+  DATA.name = n || "Jugador";
   DATA.avatar = pickAvIdx;
   DATA.onboarded = true;
   saveData(); refreshChip(); closeModal(); renderHome();
@@ -1105,11 +1112,11 @@ function welcome(){
   pickAvIdx=0;
   var avs='';
   for(var i=0;i<AVATARS.length;i++){ avs += '<div class="av-opt'+(i===0?' on':'')+'" data-i="'+i+'" onclick="pickAv('+i+')">'+avatarSVG(i)+'</div>'; }
-  showModal('<h2>¡Bienvenido a Matex!</h2><p>Una aventura para dominar las tablas, las sumas y las restas. ¿Cómo te llamas?</p>'
+  showModal('<h2>¡Bienvenido a Matex!</h2><p>Un juego para dominar las tablas, las sumas y las restas. ¿Cómo te llamas?</p>'
     + '<input class="name-input" id="nameInput" maxlength="14" placeholder="Escribe tu nombre">'
     + '<p style="margin:0 0 8px">Elige tu personaje:</p>'
     + '<div class="av-pick" id="avPick">'+avs+'</div>'
-    + '<div class="result-actions"><div class="btn gold" onclick="saveProfile()">¡EMPEZAR AVENTURA!</div></div>', true);
+    + '<div class="result-actions"><div class="btn gold" onclick="saveProfile()">¡Empezar a jugar!</div></div>', true);
 }
 
 /* ---------- modal infra ---------- */
