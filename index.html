@@ -183,7 +183,7 @@ body{
 /* ---- modo cuaderno (sumas con llevadas) ---- */
 .cu-hint{min-height:22px; font-weight:700; color:var(--ink-soft); font-size:15px; margin-bottom:10px;}
 .cu-hint-warn{color:var(--red-d);}
-.cu-grid{display:inline-grid; gap:4px 6px; justify-content:center; align-items:end; margin:2px auto 6px;}
+.cu-grid{display:grid; width:max-content; gap:4px 6px; align-items:end; margin:8px auto;}
 .cu-d{height:42px; display:flex; align-items:center; justify-content:center; font-family:var(--pixel); font-weight:700; font-size:30px; color:var(--ink);}
 .cu-op{height:42px; display:flex; align-items:center; justify-content:center; font-family:var(--pixel); font-weight:700; font-size:26px; color:var(--orange-d);}
 .cu-carry{height:26px; display:flex; align-items:center; justify-content:center;}
@@ -863,7 +863,7 @@ function cuadernoBuild(q){
   return {kind:q.kind, op:(q.kind==="resta"?"−":"+"), a:q.a, b:q.b, as:as, bs:bs, n:n,
           aLen:aLen, bLen:bLen, carries:carries, res:res, finalCarry:finalCarry,
           topEff:topEff, redVal:redVal, struck:struck, borrowed:borrowed, boxAt:boxAt,
-          cells:cells, cols:cols, idx:0, mistakes:0};
+          cells:cells, cols:cols, idx:0, mistakes:0, curMiss:0};
 }
 function renderCuaderno(){
   var cu=QUIZ.cu, P=cu.cols, C=P.length, h='', k;
@@ -871,9 +871,9 @@ function renderCuaderno(){
     if(cu.boxAt && cu.boxAt[p]) return '<div class="cu-carry"><div class="cu-cell cu-carrybox" id="cy'+p+'"></div></div>';
     return '<div class="cu-carry"></div>';
   }
-  h+='<div class="cu-grid" style="grid-template-columns:30px repeat('+C+',42px)">';
+  h+='<div class="cu-grid" style="grid-template-columns:30px repeat('+C+',42px) 30px">';
   // fila extra ARRIBA: llevadas (suma) o la cifra reducida sobre la tachada (resta)
-  h+='<div></div>'; for(k=0;k<C;k++) h+=carryCell(P[k]);
+  h+='<div></div>'; for(k=0;k<C;k++) h+=carryCell(P[k]); h+='<div></div>';
   // fila A; en resta se tacha la cifra de la que se pide prestado
   h+='<div></div>';
   for(k=0;k<C;k++){
@@ -881,14 +881,17 @@ function renderCuaderno(){
     var cls='cu-d'+((cu.kind==="resta" && cu.struck && cu.struck[pa])?' cu-struck':'');
     h+='<div class="'+cls+'">'+dig+'</div>';
   }
+  h+='<div></div>';
   // fila B con operador
   h+='<div class="cu-op">'+cu.op+'</div>';
   for(k=0;k<C;k++){ var pb=P[k]; h+='<div class="cu-d">'+(pb<cu.bLen?cu.bs[cu.n-1-pb]:'')+'</div>'; }
+  h+='<div></div>';
   // raya
   h+='<div class="cu-line"></div>';
   // fila resultado
   h+='<div></div>';
   for(k=0;k<C;k++){ var pr=P[k]; h+='<div class="cu-cell cu-resbox" id="rs'+pr+'"></div>'; }
+  h+='<div></div>';
   h+='</div>';
   return h;
 }
@@ -902,6 +905,7 @@ function setActiveCell(){
 function posName(p){ return ["unidades","decenas","centenas","millares"][p] || "cifras"; }
 function hintWhat(c){
   var cu=QUIZ.cu, p=c.pos;
+  if(c.kind==="carry") return (cu.kind==="resta") ? "No llega: pide una decena. Tacha el de al lado y pon uno menos arriba ↑" : "Te llevas una: escríbela arriba ↑";
   if(cu.kind==="resta"){
     var m=cu.topEff[p], b=(p<cu.bLen?cu.bs[cu.n-1-p]:0);
     if(cu.borrowed[p]) return "Ahora tienes "+(m+10)+", quítale "+b+".";
@@ -913,15 +917,9 @@ function hintWhat(c){
   return "Suma "+nums.join(" + ");
 }
 function updateCuHint(){
-  var cu=QUIZ.cu, el=document.getElementById('cuHint'); if(!el || cu.idx>=cu.cells.length) return;
+  var el=document.getElementById('cuHint'); if(!el) return;
   el.classList.remove('cu-hint-warn','cu-hint-carry');
-  var c=cu.cells[cu.idx];
-  if(c.kind==="carry"){
-    el.classList.add('cu-hint-carry');
-    el.textContent = (cu.kind==="resta") ? "No llega: pide una decena. Tacha el de al lado y pon uno menos arriba ↑" : "Escribe la llevada: un 1 arriba ↑";
-  }
-  else if(cu.kind!=="resta" && c.pos===cu.n) el.textContent="Baja la última llevada";
-  else el.textContent = hintWhat(c);
+  el.textContent="";   // al entrar no damos pista: primero solo la operación
 }
 function hintFor(c){
   var cu=QUIZ.cu, p=c.pos;
@@ -939,6 +937,17 @@ function hintFor(c){
   var s=(ad||0)+(bd||0)+ci;
   return nums.join(" + ")+" = "+s+", escribe "+(s%10)+".";
 }
+function hintSoft(c){
+  var cu=QUIZ.cu;
+  if(c.kind==="carry") return (cu.kind==="resta") ? "¿No llega? Si lo necesitas, pide una decena." : "¿Tienes que llevarte una?";
+  return "Fíjate bien en esa columna.";
+}
+function cuHint(c){
+  var diff = QUIZ.diff || "facil", m = QUIZ.cu.curMiss;
+  if(diff==="facil")  return hintWhat(c);                 // pistas buenas siempre, sin dar el resultado
+  if(diff==="medio")  return (m===1) ? hintSoft(c) : (m===2) ? hintWhat(c) : hintFor(c);
+  return (m<=2) ? hintSoft(c) : (m===3) ? hintWhat(c) : hintFor(c);
+}
 function showCuHint(t){
   var el=document.getElementById('cuHint'); if(!el) return;
   el.textContent=t; el.classList.add('cu-hint-warn');
@@ -948,14 +957,14 @@ function cuadernoPress(d){
   var c=cu.cells[cu.idx], box=cellBox(c);
   if(parseInt(d,10)===c.exp){
     box.textContent=d; box.classList.remove('active','bad'); box.classList.add('ok');
-    cu.idx++;
+    cu.idx++; cu.curMiss=0;
     if(cu.idx>=cu.cells.length) finalizeCuaderno();
     else { setActiveCell(); if(QUIZ.showHelp) updateCuHint(); }
   } else {
-    cu.mistakes++; QUIZ.problemMistake=true;
+    cu.mistakes++; cu.curMiss=(cu.curMiss||0)+1; QUIZ.problemMistake=true;
     box.classList.remove('ok'); box.classList.add('bad');
     (function(bx){ setTimeout(function(){ bx.classList.remove('bad'); }, 430); })(box);
-    if(QUIZ.showHelp) showCuHint(hintFor(c));
+    if(QUIZ.showHelp) showCuHint(cuHint(c));
   }
 }
 function finalizeCuaderno(){
