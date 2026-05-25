@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Matex — Aventura de Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ====================== TOKENS ====================== */
+:root{
+  --sky1:#6fb7ff; --sky2:#bfe6ff;
+  --grass:#5fb12b; --grass-d:#3f7d1c;
+  --dirt:#7a4a25;
+  --ink:#202338; --ink-soft:#4a4e6b;
+  --panel:#ffffff; --panel-2:#f4f2ff;
+  --line:#23263d;
+  --gold:#ffcf3f; --gold-d:#e0a51e;
+  --purple:#7b5cff; --purple-d:#553bc4;
+  --green:#37c871; --green-d:#1f9c52;
+  --red:#ff6b5e; --red-d:#d6463a;
+  --orange:#ff9f43; --orange-d:#df7c1c;
+  --teal:#22c6c6; --teal-d:#149a9a;
+  --blue:#3d9bff; --blue-d:#2274d8;
+  --pink:#ff6fae; --pink-d:#d6478a;
+  --bronze:#cd874b; --silver:#cfd6e2;
+  --pixel:'Fredoka', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --body:'Fredoka', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  margin:0; font-family:var(--body); font-weight:500; color:var(--ink);
+  background: linear-gradient(170deg, #8fc1ff 0%, #aec2ff 45%, #d6c9f6 100%);
+  background-attachment:fixed;
+  min-height:100%;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* fondo limpio: sin franja de hierba */
+.app-wrap{position:relative; z-index:1; max-width:920px; margin:0 auto; padding:14px 14px 70px;}
+
+/* ====================== SHARED BLOCKY LOOK ====================== */
+.pixel{font-family:var(--pixel); letter-spacing:.2px; line-height:1.5;}
+.btn,.logo h1,.stat b,.section-title,.card h3,.panel h2,.tile .tn,.pill .pl,.qmeta,.mult-q,.vsum,.answer-display,.key,.result-card .big,.medal h4,.modal h2{font-weight:700;}
+.block{
+  border:3px solid var(--line);
+  box-shadow: inset 4px 4px 0 rgba(255,255,255,.35), inset -5px -5px 0 rgba(0,0,0,.18), 0 5px 0 rgba(0,0,0,.18);
+  border-radius:10px;
+}
+.btn{
+  font-family:var(--pixel); font-size:12px; color:#fff; cursor:pointer;
+  border:3px solid var(--line); border-radius:10px; padding:14px 16px;
+  background:var(--blue);
+  box-shadow: inset 3px 3px 0 rgba(255,255,255,.4), inset -4px -4px 0 rgba(0,0,0,.22), 0 5px 0 rgba(0,0,0,.22);
+  transition: transform .05s ease, box-shadow .05s ease, filter .1s;
+  text-shadow: 2px 2px 0 rgba(0,0,0,.28);
+  user-select:none;
+}
+.btn:hover{filter:brightness(1.06);}
+.btn:active{transform:translateY(4px); box-shadow: inset 3px 3px 0 rgba(255,255,255,.4), inset -4px -4px 0 rgba(0,0,0,.22), 0 1px 0 rgba(0,0,0,.22);}
+.btn.green{background:var(--green);} .btn.red{background:var(--red);}
+.btn.gold{background:var(--gold); color:var(--ink); text-shadow:1px 1px 0 rgba(255,255,255,.4);}
+.btn.purple{background:var(--purple);} .btn.orange{background:var(--orange);}
+.btn.teal{background:var(--teal);} .btn.ghost{background:#fff; color:var(--ink); text-shadow:none;}
+.btn.sm{font-size:10px; padding:10px 12px;}
+
+/* ====================== HEADER ====================== */
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:16px; flex-wrap:wrap;}
+.logo{display:flex; align-items:center; gap:10px; cursor:pointer;}
+.logo .cube{width:42px; height:42px;}
+.logo h1{font-family:var(--pixel); font-size:20px; margin:0; color:#fff;
+  text-shadow: 3px 3px 0 var(--ink), -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink);}
+.logo h1 b{color:var(--gold);}
+.profile-chip{display:flex; align-items:center; gap:10px; background:#fff; padding:7px 12px 7px 8px; cursor:pointer;}
+.profile-chip .av{width:38px; height:38px; border-radius:8px; border:2px solid var(--line); overflow:hidden; flex:none;}
+.profile-chip .who{display:flex; flex-direction:column; line-height:1.1;}
+.profile-chip .who .nm{font-weight:900; font-size:15px;}
+.profile-chip .who .md{font-size:12px; color:var(--ink-soft); font-weight:700; display:flex; align-items:center; gap:4px;}
+
+/* ====================== HOME ====================== */
+.hero{background:#fff; padding:16px 18px; margin-bottom:16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.hero .big-av{width:74px; height:74px; border:3px solid var(--line); border-radius:12px; overflow:hidden; flex:none;}
+.hero .htxt{flex:1; min-width:200px;}
+.hero .htxt h2{margin:0 0 4px; font-size:22px; font-weight:900;}
+.hero .htxt p{margin:0; color:var(--ink-soft); font-weight:700;}
+.stat-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
+.stat{background:var(--panel-2); border:2px solid var(--line); border-radius:9px; padding:6px 10px; font-weight:800; font-size:13px; display:flex; align-items:center; gap:6px;}
+.stat b{font-family:var(--pixel); font-size:13px;}
+
+.section-title{font-family:var(--pixel); color:#fff; font-size:14px; margin:18px 4px 12px;
+  text-shadow:2px 2px 0 var(--ink);}
+.grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+@media(min-width:640px){ .grid{grid-template-columns:repeat(3,1fr);} }
+.card{background:#fff; cursor:pointer; padding:0; overflow:hidden; transition:transform .08s;}
+.card:hover{transform:translateY(-3px);}
+.card:active{transform:translateY(1px);}
+.card .top{height:8px;}
+.card .body{padding:16px 14px 18px; text-align:center;}
+.card .ic{width:56px; height:56px; margin:2px auto 10px;}
+.card h3{margin:0 0 4px; font-family:var(--pixel); font-size:12px;}
+.card p{margin:0; font-size:13px; color:var(--ink-soft); font-weight:700;}
+.card .mini-stars{margin-top:8px; font-size:14px; letter-spacing:2px; color:var(--gold-d);}
+
+/* ====================== SELECTOR / PILLS ====================== */
+.back-bar{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+.panel{background:#fff; padding:18px; margin-bottom:14px;}
+.panel h2{margin:0 0 4px; font-family:var(--pixel); font-size:16px;}
+.panel .sub{color:var(--ink-soft); font-weight:700; margin:0 0 14px;}
+.tables-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:12px;}
+.tile{background:var(--panel-2); border:3px solid var(--line); border-radius:12px; cursor:pointer; padding:14px 8px; text-align:center;
+  box-shadow: inset 3px 3px 0 rgba(255,255,255,.6), inset -4px -4px 0 rgba(0,0,0,.12), 0 4px 0 rgba(0,0,0,.14);
+  transition:transform .07s;}
+.tile:hover{transform:translateY(-2px);}
+.tile:active{transform:translateY(2px);}
+.tile .tn{font-family:var(--pixel); font-size:20px; color:var(--purple-d);}
+.tile .tl{font-size:12px; font-weight:800; color:var(--ink-soft); margin-top:3px;}
+.tile .st{margin-top:6px; color:var(--gold-d); letter-spacing:1px; font-size:13px;}
+.tile.mixto{background:linear-gradient(135deg,#ffe9a8,#ffd34d);}
+.tile.mixto .tn{color:#a9701a; font-size:14px;}
+
+.pills{display:flex; gap:12px; flex-wrap:wrap;}
+.pill{flex:1; min-width:150px; cursor:pointer; background:var(--panel-2); border:3px solid var(--line); border-radius:12px; padding:14px; text-align:center;
+  box-shadow: inset 3px 3px 0 rgba(255,255,255,.6), inset -4px -4px 0 rgba(0,0,0,.12), 0 4px 0 rgba(0,0,0,.14); transition:transform .07s;}
+.pill:hover{transform:translateY(-2px);} .pill:active{transform:translateY(2px);}
+.pill .pl{font-family:var(--pixel); font-size:12px;}
+.pill .pd{font-size:12px; font-weight:700; color:var(--ink-soft); margin-top:6px;}
+.pill .st{margin-top:8px; color:var(--gold-d); letter-spacing:2px;}
+.pill.facil .pl{color:var(--green-d);} .pill.medio .pl{color:var(--orange-d);} .pill.dificil .pl{color:var(--red-d);}
+
+.choose-row{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;}
+.chip{cursor:pointer; background:var(--panel-2); border:2px solid var(--line); border-radius:9px; padding:8px 12px; font-weight:800; font-size:13px;}
+.chip.on{background:var(--blue); color:#fff;}
+
+/* ====================== QUIZ ====================== */
+.quiz-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;}
+.qmeta{font-family:var(--pixel); font-size:11px; color:#fff; text-shadow:2px 2px 0 var(--ink);}
+.streak{display:flex; align-items:center; gap:6px; background:#fff; border:2px solid var(--line); border-radius:9px; padding:5px 10px; font-weight:900; font-size:14px;}
+.progress{height:18px; background:#fff; border:3px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:16px;}
+.progress .bar{height:100%; width:0%; background:linear-gradient(90deg,var(--green),var(--teal)); transition:width .35s ease;}
+
+.qcard{background:#fff; padding:22px 18px; text-align:center; position:relative; overflow:hidden;}
+.qcard.flash-ok{animation:flashok .5s;}
+.qcard.flash-no{animation:flashno .5s;}
+@keyframes flashok{0%{background:#d7ffe6;}100%{background:#fff;}}
+@keyframes flashno{0%,20%,40%{transform:translateX(-8px);}10%,30%{transform:translateX(8px);}50%{transform:translateX(0); background:#ffe2de;}100%{background:#fff;}}
+
+.mult-q{font-family:var(--pixel); font-size:42px; color:var(--ink); margin:10px 0 6px;}
+@media(min-width:520px){ .mult-q{font-size:56px;} }
+.mult-q .x{color:var(--purple);}
+
+/* vertical column sums/restas */
+.vsum{display:inline-block; text-align:right; font-family:var(--pixel); font-size:34px; color:var(--ink); margin:6px 0; min-width:170px; position:relative;}
+@media(min-width:520px){ .vsum{font-size:44px; min-width:210px;} }
+.vsum .row{padding:2px 6px 2px 50px; position:relative; letter-spacing:6px;}
+.vsum .op{position:absolute; left:8px; color:var(--orange-d);}
+.vsum hr{border:none; border-top:5px solid var(--line); margin:8px 0 4px;}
+.vsum .res{color:var(--blue-d); min-height:40px;}
+.vsum .res .cursor{color:var(--ink); animation:blink 1s steps(1) infinite;}
+@keyframes blink{50%{opacity:0;}}
+
+.answer-box{margin:14px auto 6px; max-width:320px;}
+.answer-display{font-family:var(--pixel); font-size:30px; background:var(--panel-2); border:3px solid var(--line); border-radius:10px; padding:12px; min-height:58px; letter-spacing:4px;}
+.answer-display.empty{color:#b9b9cc;}
+
+.feedback{min-height:26px; margin:10px 0 4px; font-weight:900; font-size:16px;}
+.feedback.ok{color:var(--green-d);} .feedback.no{color:var(--red-d);}
+
+/* keypad */
+.keypad{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:340px; margin:6px auto 2px;}
+.key{font-family:var(--pixel); font-size:20px; padding:16px 0; cursor:pointer; background:#fff; color:var(--ink);
+  border:3px solid var(--line); border-radius:12px;
+  box-shadow: inset 3px 3px 0 rgba(255,255,255,.6), inset -4px -4px 0 rgba(0,0,0,.14), 0 4px 0 rgba(0,0,0,.16);
+  transition:transform .05s; user-select:none;}
+.key:active{transform:translateY(4px); box-shadow: inset 3px 3px 0 rgba(255,255,255,.6), inset -4px -4px 0 rgba(0,0,0,.14), 0 1px 0 rgba(0,0,0,.16);}
+.key.del{background:var(--orange); color:#fff;}
+.key.ok{background:var(--green); color:#fff; font-size:16px;}
+
+/* ---- modo cuaderno (sumas con llevadas) ---- */
+.cu-hint{min-height:22px; font-weight:700; color:var(--ink-soft); font-size:15px; margin-bottom:10px;}
+.cu-hint-warn{color:var(--red-d);}
+.cu-grid{display:inline-grid; gap:4px 6px; justify-content:center; align-items:end; margin:2px auto 6px;}
+.cu-d{height:42px; display:flex; align-items:center; justify-content:center; font-family:var(--pixel); font-weight:700; font-size:30px; color:var(--ink);}
+.cu-op{height:42px; display:flex; align-items:center; justify-content:center; font-family:var(--pixel); font-weight:700; font-size:26px; color:var(--orange-d);}
+.cu-carry{height:26px; display:flex; align-items:center; justify-content:center;}
+.cu-line{grid-column:1 / -1; height:5px; background:var(--line); border-radius:3px; margin:4px 0;}
+.cu-cell{display:flex; align-items:center; justify-content:center; font-family:var(--pixel); font-weight:700; border-radius:8px; transition:box-shadow .1s, background .1s;}
+.cu-carrybox{width:24px; height:24px; font-size:15px; border:2px dashed var(--orange-d); color:var(--orange-d); background:#fff8ec;}
+.cu-resbox{width:42px; height:46px; font-size:28px; border:3px solid var(--line); background:var(--panel-2); color:var(--ink);}
+.cu-cell.active{box-shadow:0 0 0 4px rgba(61,155,255,.45); border-color:var(--blue);}
+.cu-cell.ok{background:#d7ffe6; border-color:var(--green); color:var(--green-d);}
+.cu-cell.bad{animation:flashno .42s; border-color:var(--red); color:var(--red-d);}
+
+/* ====================== RESULTS ====================== */
+.result-card{background:#fff; padding:26px 20px; text-align:center;}
+.result-card .big{font-family:var(--pixel); font-size:38px; margin:6px 0;}
+.result-card .stars-big{font-size:42px; letter-spacing:8px; color:var(--gold-d); margin:8px 0;}
+.result-msg{font-weight:800; font-size:17px; margin:6px 0 16px; color:var(--ink-soft);}
+.result-actions{display:flex; gap:12px; justify-content:center; flex-wrap:wrap;}
+
+/* ====================== MEDALLAS ====================== */
+.medals-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:14px;}
+.medal{background:#fff; padding:14px 10px; text-align:center;}
+.medal.locked{filter:grayscale(1) opacity(.55);}
+.medal .msvg{width:64px; height:64px; margin:2px auto 8px;}
+.medal h4{margin:0 0 3px; font-family:var(--pixel); font-size:10px;}
+.medal p{margin:0; font-size:12px; font-weight:700; color:var(--ink-soft);}
+
+/* ====================== MODAL / TOAST ====================== */
+.modal-bg{position:fixed; inset:0; background:rgba(20,22,40,.6); display:flex; align-items:center; justify-content:center; padding:18px; z-index:50;}
+.modal{background:#fff; max-width:440px; width:100%; padding:22px; max-height:90vh; overflow:auto;}
+.modal h2{margin:0 0 6px; font-family:var(--pixel); font-size:16px;}
+.modal p{margin:0 0 14px; font-weight:700; color:var(--ink-soft);}
+.name-input{width:100%; font-family:var(--body); font-size:18px; font-weight:800; padding:12px; border:3px solid var(--line); border-radius:10px; margin-bottom:14px;}
+.av-pick{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px;}
+.av-opt{border:3px solid var(--line); border-radius:12px; padding:6px; cursor:pointer; background:var(--panel-2);}
+.av-opt.on{border-color:var(--blue); box-shadow:0 0 0 3px rgba(61,155,255,.4);}
+.av-opt svg{width:100%; height:auto; display:block;}
+
+.toast-wrap{position:fixed; left:0; right:0; bottom:18px; display:flex; flex-direction:column; align-items:center; gap:8px; z-index:60; pointer-events:none;}
+.toast{background:var(--gold); color:var(--ink); border:3px solid var(--line); border-radius:12px; padding:10px 16px 10px 12px; display:flex; align-items:center; gap:10px;
+  box-shadow:0 6px 0 rgba(0,0,0,.2); font-weight:900; animation:pop .4s, fade .4s 3.4s forwards; max-width:90%;}
+.toast svg{width:34px; height:34px; flex:none;}
+.toast small{display:block; font-weight:800; color:var(--ink-soft); font-size:11px;}
+@keyframes pop{0%{transform:scale(.6) translateY(20px); opacity:0;}100%{transform:scale(1) translateY(0); opacity:1;}}
+@keyframes fade{to{opacity:0; transform:translateY(10px);}}
+
+.confetti{position:fixed; top:-10px; width:10px; height:14px; z-index:40; pointer-events:none;}
+.hidden{display:none !important;}
+.footer-note{text-align:center; color:rgba(32,35,58,.6); font-weight:700; font-size:12px; margin-top:18px;}
+</style>
+</head>
+<body>
+<div class="app-wrap">
+  <div class="topbar">
+    <div class="logo" onclick="goHome()">
+      <svg class="cube" viewBox="0 0 48 48">
+        <defs><radialGradient id="globeLogo" cx="38%" cy="30%" r="78%">
+          <stop offset="0" stop-color="#a9e4ff"/><stop offset="45%" stop-color="#3aa0ff"/><stop offset="100%" stop-color="#1f56c8"/>
+        </radialGradient></defs>
+        <circle cx="24" cy="24" r="20" fill="url(#globeLogo)" stroke="#15172a" stroke-width="3"/>
+        <path d="M13 16 q4 -3 8 -1 q3 2 1 5 q-3 2 -6 1 q-4 -2 -3 -5z" fill="#46c66e" stroke="#2c9a4f" stroke-width="1"/>
+        <path d="M27 26 q6 -1 7 4 q1 4 -3 6 q-5 1 -7 -3 q-1 -4 3 -7z" fill="#46c66e" stroke="#2c9a4f" stroke-width="1"/>
+        <path d="M13 31 q3 -1 5 2 q1 3 -3 3 q-4 0 -2 -5z" fill="#46c66e" stroke="#2c9a4f" stroke-width="1"/>
+        <ellipse cx="17" cy="15" rx="7" ry="4.4" fill="#ffffff" opacity="0.42" transform="rotate(-25 17 15)"/>
+        <path d="M34 11 l1.2 3 l3 1.2 l-3 1.2 l-1.2 3 l-1.2 -3 l-3 -1.2 l3 -1.2z" fill="#ffffff" opacity="0.92"/>
+      </svg>
+      <h1>Mate<b>x</b></h1>
+    </div>
+    <div class="profile-chip block" onclick="openProfile()">
+      <div class="av" id="chipAv"></div>
+      <div class="who">
+        <span class="nm" id="chipName">Jugador</span>
+        <span class="md"><svg width="14" height="14" viewBox="0 0 24 24"><circle cx="12" cy="10" r="7" fill="#ffcf3f" stroke="#23263d" stroke-width="2"/><text x="12" y="14" font-size="9" text-anchor="middle" fill="#23263d" font-family="Arial" font-weight="bold">★</text></svg><span id="chipMedals">0</span> medallas</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen"></div>
+
+  <div class="footer-note">Tu progreso solo se guardará si no borras caché ni cookies.</div>
+</div>
+
+<div id="modalHost"></div>
+<div class="toast-wrap" id="toastHost"></div>
+
+<script>
+/* =================================================================
+   MATEX — app de matemáticas (tablas, sumas y restas llevando)
+   Progreso en localStorage. Sin sonido. Estética retro de bloques.
+==================================================================== */
+"use strict";
+
+/* ---------- almacenamiento ---------- */
+var STORE_KEY = "matex_v1";
+var memFallback = null;
+
+function defaultData(){
+  return {
+    name: "",
+    avatar: 0,
+    onboarded: false,
+    stars: { mult:{}, suma:{}, resta:{} },     // mult: por tabla 1..10 ; suma/resta: por dificultad
+    stats: {
+      totalAnswered:0, totalCorrect:0, bestStreak:0,
+      mult:{correct:0, perTable:{}},
+      suma:{correct:0}, resta:{correct:0},
+      exams:{completed:0, perfect:0, perfectHard:0}
+    },
+    achievements: {}
+  };
+}
+function loadData(){
+  try{
+    var raw = localStorage.getItem(STORE_KEY) || localStorage.getItem("matemundo_v1") || localStorage.getItem("matecraft_v1");
+    if(raw){ return mergeDefaults(JSON.parse(raw)); }
+  }catch(e){ /* localStorage no disponible */ }
+  if(memFallback) return memFallback;
+  return defaultData();
+}
+function mergeDefaults(d){
+  var def = defaultData();
+  function deep(t,s){ for(var k in t){ if(typeof t[k]==="object" && t[k] && !Array.isArray(t[k])){ s[k]=s[k]||{}; deep(t[k],s[k]); } else if(s[k]===undefined){ s[k]=t[k]; } } }
+  deep(def,d); return d;
+}
+function saveData(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); }
+  catch(e){ memFallback = DATA; }
+}
+var DATA = loadData();
+
+/* ---------- utilidades ---------- */
+function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function $(id){ return document.getElementById(id); }
+function starStr(n){ var s=""; for(var i=0;i<3;i++){ s += i<n ? "★" : "☆"; } return s; }
+
+/* ====================== AVATARES (pixel-art 16x16) ====================== */
+var AVATARS = [{"name": "Heroe", "rows": ["................", ".....OOOOOO.....", "....OhhhhhhO....", "...OhhhhhhhhO...", "...ObbbbbbbbO...", "...OhsssssshO...", "...OssssssssO...", "...OswwsswwsO...", "...OswpsspwsO...", "...OSssssssSO...", "...OsssmmsssO...", "....OssssssO....", "..OOOOOssOOOOO..", ".OgggggbbgggggO.", ".OggggggggggggO.", ".OGGGGGGGGGGGGO."], "pal": {"s": "#f4c99c", "S": "#d6a271", "h": "#6e4a2a", "b": "#ffcd46", "w": "#ffffff", "p": "#20223a", "m": "#c46250", "g": "#3cc478", "G": "#289655", "O": "#15172a"}, "bg": ["#7bb7ff", "#a8d6ff"]}, {"name": "Ninja", "rows": ["................", "................", ".....OOOOOO.....", "....OkkkkkkOO...", "...OrrrrrrrrrO..", "...OkkkkkkkkOrO.", "...OswwsswwsOrO.", "...OswpsspwsOO..", "...OkkkkkkkkO...", "...OkkkkkkkkO...", "...OkkkkkkkkO...", "....OkkkkkkO....", "...OOOOOOOOOO...", "..OkkkkrrkkkkO..", "..OkkkkkkkkkkO..", "..OKKKKKKKKKKO.."], "pal": {"k": "#282c46", "K": "#1a1d30", "r": "#ff5046", "s": "#f4c99c", "w": "#ffffff", "p": "#20223a", "O": "#15172a"}, "bg": ["#505478", "#969abe"]}, {"name": "Zorro", "rows": ["................", "...OO......OO...", "..OffO....OffO..", "..OfiOOOOOOifO..", "..OfOffffffOfO..", "...OffffffffO...", "...OfwwffwwfO...", "...OfwpffpwfO...", "...OfOwwwwOfO...", "...OfwwnnwwfO...", "....OwwwwwwO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OfffwwwwfffO..", "..OfffwwwwfffO..", "..OFFFFFFFFFFO.."], "pal": {"f": "#ff8a3d", "F": "#d66a1e", "i": "#ffd0a8", "w": "#fff3e6", "p": "#20223a", "n": "#20223a", "O": "#15172a"}, "bg": ["#ffd1a0", "#ffaa6e"]}, {"name": "Robot", "rows": [".......OyO......", ".......OaO......", "....OOOOaOOO....", "...OaaaaaaaaO...", "..OAaaaaaaaAaO..", "..OaaaaaaaaAaO..", "..OaclcaaclcaO..", "..OacccaacccaO..", "..OaaaaaaaaAaO..", "..OaaAOAOAOAaO..", "...OaaaaaaaaAO..", "....OOOOOOOOO...", "...OOOOOOOOOO...", "..OaaaccccaaaO..", "..OaaaaaaaaaaO..", "..OAAAAAAAAAAO.."], "pal": {"a": "#bac4d8", "A": "#8793b0", "c": "#38e0ff", "l": "#dcfaff", "y": "#ffcd46", "O": "#15172a"}, "bg": ["#5a96c8", "#96c8eb"]}, {"name": "Gato", "rows": ["................", "................", "...OO......OO...", "..OccOOOOOOccO..", "..OcOccccccOcO..", "...OccccccccO...", "...OceecceecO...", "...OcepccpecO...", "...OccccccccO...", ".OOOcOwnnwOcOOO.", "....OwwwwwwO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OcccwwwwcccO..", "..OcccwwwwcccO..", "..OCCCCCCCCCCO.."], "pal": {"c": "#9aa3b5", "C": "#757e92", "k": "#ffc2d4", "w": "#ffffff", "e": "#78dc8c", "p": "#20223a", "n": "#ff8fb0", "O": "#15172a"}, "bg": ["#78aac8", "#b4cde1"]}, {"name": "Astronauta", "rows": ["................", "....OOOOOOOO....", "...OwwwwwwwwO...", "..OwwwwwwwwwwO..", "..OwwwwwwwwWwO..", "..OwOvvvvvvOwO..", "..OwvllvvvvvwO..", "..OwvlvvvvvvwO..", "..OwvvvvvvvvwO..", "..OwOvvvvlvOwO..", "..OwwwwwwwwWwO..", "...OwwwwwwwwO...", "....OOOOOOOO....", "...OolowwoloO...", "...OooowwoooO...", "...OzzzwwzzzO..."], "pal": {"w": "#eef3ff", "W": "#c7d2e6", "v": "#2b6fff", "l": "#bfe0ff", "o": "#ff7a59", "z": "#d65a3c", "O": "#15172a"}, "bg": ["#5a6eb4", "#96aae1"]}, {"name": "Dragona", "rows": ["................", ".....O....O.....", "....ODO..ODO....", "....ODOOOODO....", "....OddddddO....", "...OddddddddO...", "...OdwwddwwdO...", "...OdwpddpwdO...", "...OddddddddO...", "...OdbpbbpbdO...", "....ObbbbbbO....", "..OO.OOOOOO.OO..", ".OddOOOOOOOOddO.", ".OddddbbbbddddO.", ".OddddbbbbddddO.", "..OddddddddddO.."], "pal": {"d": "#56c85a", "D": "#ffde78", "b": "#d6f5b0", "w": "#ffffff", "p": "#20223a", "O": "#15172a"}, "bg": ["#8ce196", "#bef0c8"]}, {"name": "Maga", "rows": ["........O.......", ".......OyO......", ".......OmO......", "......OmmmO.....", "....OOmmmmmO....", "...OMMMMMMMMO...", "...OhOssssOhO...", "...OhwwsswwhO...", "...OhwpsspwhO...", "...OhssrrsshO...", "....OOssssOO....", "......OOOO......", "....OOOOOOOO....", "...OmmmmmmmmO...", "...OmmmmymmmO...", "...OmmmmmmmmO..."], "pal": {"m": "#7b5cff", "M": "#553bc4", "y": "#ffcd46", "s": "#f4c99c", "h": "#6e4a2a", "w": "#ffffff", "p": "#20223a", "r": "#c46250", "O": "#15172a"}, "bg": ["#b296ff", "#9678eb"]}, {"name": "Unicornio", "rows": ["........O.......", ".......OyO......", ".....O.OyO.O....", "....OuOOYOOuO...", "....OuuppuuppO..", "...OuuuuuuuppO..", "...OuwwuuwwppO..", "...OuwkuukwppO..", "...OuuuuuuuppO..", "...OuuPPPPuppO..", "....OuPkkPuppO..", ".....OOOOOOOO...", "...OOOOOOOOOO...", "..OppuuuuuuuuO..", "..OppuuuuuuuuO..", "..OppuuuuuuuuO.."], "pal": {"u": "#ffffff", "k": "#20223a", "p": "#ff8fb0", "P": "#ffd1e0", "y": "#ffcd46", "Y": "#e0a51e", "w": "#ffffff", "O": "#15172a"}, "bg": ["#ffc8e1", "#ffe1f0"]}, {"name": "Hada", "rows": ["................", "......O..O......", ".....OjOOjO.....", ".....OjOOjO.....", "....OjjjjjjO....", "....OOssssOO....", ".OOOjssssssjOOO.", "OqqOjwwsswwjOqqO", "OqqOjwpsspwjOqqO", ".OO.OOsrrsOO.OO.", "......OOOO......", "................", ".....OOOOOO.....", "....OggggggO....", "....OggyyggO....", "....OggggggO...."], "pal": {"q": "#b4ebff", "j": "#ffcd46", "s": "#f4c99c", "w": "#ffffff", "p": "#20223a", "r": "#ff8fb0", "g": "#3cc478", "y": "#ffffff", "O": "#15172a"}, "bg": ["#ffeeaa", "#ffd2eb"]}, {"name": "Panda", "rows": ["................", "................", "...OOO....OOO...", "..OkkkOOOOkkkO..", "..OkOwwwwwwOkO..", "..OkwwwwwwwwkO..", "...OwkkwwkkwO...", "...OwkwwwwkwO...", "...OwwwwwwwwO...", "...OwwwkkwwwO...", "....OwwwwwwO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OkkwwwwwwkkO..", "..OkkwwwwwwkkO..", "..OkkwwwwwwkkO.."], "pal": {"w": "#ffffff", "k": "#282a3c", "O": "#15172a"}, "bg": ["#96c896", "#c3e1c3"]}, {"name": "Conejo", "rows": [".....OO..OO.....", "....OccOOccO....", "....OkcOOckO....", "....OkcOOckO....", "....OccOOccO....", "....OccccccO....", "...OccccccccO...", "...OcwwccwwcO...", "...OcwpccpwcO...", "...OcccnncccO...", "....OccwwccO....", ".....OOOOOO.....", "....OOOOOOOO....", "...OccwwwwccO...", "...OccwwwwccO...", "...OccccccccO..."], "pal": {"c": "#e2e2ec", "w": "#ffffff", "p": "#20223a", "n": "#ff8fb0", "O": "#15172a"}, "bg": ["#ffe1eb", "#ebebfa"]}, {"name": "Buho", "rows": ["................", "....O......O....", "...OoOOOOOOoO...", "....OooooooO....", "...OooooooooO...", "...OwwwoowwwO...", "...OwwpoowpwO...", "...OwppooppwO...", "...OoooyyoooO...", "...OoooyooooO...", "....ObbbbbbO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OooobbbboooO..", "..OooobbbboooO..", "..OooooooooooO.."], "pal": {"o": "#966234", "w": "#fffaeb", "p": "#20223a", "y": "#ffaa3c", "b": "#d0aa6e", "O": "#15172a"}, "bg": ["#c4a06e", "#e1c8a0"]}, {"name": "Pinguino", "rows": ["................", "................", ".....OOOOOO.....", "....OkkkkkkO....", "...OkkkkkkkkO...", "...OkwwwwwwkO...", "...OkwpwwpwkO...", "...OkwwwwwwkO...", "...OkwwoowwkO...", "...OkwwoowwkO...", "....OkkkkkkO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OkkwwwwwwkkO..", "..OkkwwwwwwkkO..", "..OkkoowwookkO.."], "pal": {"k": "#2d3044", "w": "#ffffff", "p": "#20223a", "o": "#ffa032", "O": "#15172a"}, "bg": ["#78b4d2", "#b4d7eb"]}, {"name": "Pirata", "rows": ["................", "................", "....OOOOOOOO....", "...OrrrrrrrrO...", "..OrrwrrwrwrO...", ".OrOOskssssO....", ".OrOskksswwsO...", "..OOskksspwsO...", "...OssssssssO...", "...OssssssssO...", "....OssmmssO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OwwwwwwwwwwO..", "..ObbbbbbbbbbO..", "..ObbwbbwbbbbO.."], "pal": {"r": "#ff5046", "w": "#ffffff", "s": "#f4c99c", "k": "#20223a", "p": "#20223a", "m": "#c46250", "b": "#3c6ed2", "O": "#15172a"}, "bg": ["#e6786e", "#f5b478"]}, {"name": "Caballera", "rows": [".......OO.......", "......OrrO......", ".....OOrrOO.....", "....OaaaaaaO....", "...OaaaaaaaAO...", "...OaaaaaaaAO...", "...OaOOOOOOAO...", "...OaaaaaaaAO...", "...OaaOaOaOAO...", "...OaaaaaaaAO...", "...OaaaaaaaAO...", "....OaaaaaaO....", "...OOOOOOOOOO...", "..OaaaarraaaaO..", "..OaaaaaaaaaaO..", "..OAAAAAAAAAAO.."], "pal": {"a": "#bec8dc", "A": "#8c98b4", "r": "#ff5046", "O": "#15172a"}, "bg": ["#96a5cd", "#c3cde6"]}, {"name": "Vikinga", "rows": ["................", "..O..........O..", ".OwOOOOOOOOOOwO.", ".OwwaaaaaaaawwO.", ".OwwaaaaaaaawwO.", "..OOaaaaaaaaOO..", "...OssssssssO...", "...OswwsswwsO...", "...OswpsspwsO...", "..OjsssmmsssjO..", "..OjOssssssOjO..", "..OjOOOOOOOOjO..", "..OjOOOOOOOOjO..", "..OggggggggggO..", "..OggggggggggO..", "..OggggggggggO.."], "pal": {"a": "#aab4c8", "s": "#f4c99c", "j": "#ffcd46", "w": "#ffffff", "p": "#20223a", "m": "#c46250", "g": "#966234", "O": "#15172a"}, "bg": ["#b4c3d7", "#d7e1f0"]}, {"name": "Exploradora", "rows": ["................", ".....OOOOOO.....", "....OttttttO....", "....OttttttO....", "...OOttttttOO...", "..OTTTTTTTTTTO..", "...OOssssssOhhO.", "...OswwsswwshhO.", "...OswpsspwshhO.", "...OsssmmssshhO.", "....OssssssOOO..", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OgggTggTgggO..", "..OggggggggggO..", "..OggggggggggO.."], "pal": {"t": "#d6b26e", "T": "#966e3c", "s": "#f4c99c", "h": "#6e4a2a", "w": "#ffffff", "p": "#20223a", "m": "#c46250", "g": "#56aa5a", "O": "#15172a"}, "bg": ["#e6c88c", "#c8e1aa"]}, {"name": "Alien", "rows": [".....O....O.....", "....OyO..OyO....", "....OgO..OgO....", "....OgOOOOgO....", "....OggggggO....", "...OggggggggO...", "...OgwOggwOgO...", "...OgOOggOOgO...", "...OgOOggOOgO...", "...OggggggggO...", "....OggGGggO....", ".....OOOOOO.....", "....OOOOOOOO....", "...OggggggggO...", "...OggggggggO...", "...OggggggggO..."], "pal": {"g": "#78d282", "G": "#46a05a", "y": "#ffcd46", "w": "#ffffff", "O": "#15172a"}, "bg": ["#9678c8", "#b4a0dc"]}, {"name": "Mecha", "rows": ["........O.......", ".......OrO......", "...OOOOObOOOO...", "..ObbbbbbbbbbO..", "..ObbbbbbbbBbO..", "..ObbbbbbbbBbO..", "..OblcccccccbO..", "..ObccccccclbO..", "..ObbbbbbbbBbO..", "..ObbBOBOBOBbO..", "..ObbbbbbbbbbO..", "...OOOOOOOOOO...", "...OOOOOOOOOO...", "..ObbbbbbbbbbO..", "..OrrrrrrrrrrO..", "..ObbbbbbbbbbO.."], "pal": {"b": "#4678dc", "B": "#2d55aa", "c": "#38e0ff", "l": "#dcfaff", "r": "#ff5046", "O": "#15172a"}, "bg": ["#5a8cd2", "#96b4eb"]}, {"name": "Slime", "rows": ["................", "................", "................", "................", "......OOOO......", ".....OssssO.....", "....OlsssssO....", "...OssssssssO...", "..OslssssssssO..", "..OsswwsswwssO..", "..OsswpsspwssO..", "..OssssssssssO..", "..OsssppppsssO..", "..OssssssssssO..", "..OssssssssssO..", "...OOOOOOOOOO..."], "pal": {"s": "#5ad2c8", "w": "#ffffff", "p": "#20223a", "l": "#d2fffa", "O": "#15172a"}, "bg": ["#78e1d7", "#aaf0eb"]}, {"name": "Fantasma", "rows": ["................", "................", ".....qqqqqq.....", "....qwwwwwwq....", "...qwwwwwwwwq...", "....qwwwwwwq....", "...qwwOwwwOwq...", "...qwOOwwOOwq...", "...qwOOwwOOwq...", "...qwrwOOwrwq...", "...qwwwwwwwwq...", "...qwwwwwwwwq...", "...qwwwwwwwwq...", "...qwwqwwqwwq...", "...qwqqwwqqwq...", "....q..qq..q...."], "pal": {"w": "#f5f8ff", "O": "#464b64", "r": "#ffb4c8", "q": "#aab2cd"}, "bg": ["#96a0c8", "#c3cdeb"]}, {"name": "Dino", "rows": ["................", "........O.......", "......OOzOO.....", ".....OzOOOzO....", "....OddddddO....", "...OddddddddO...", "...OdwwddwwdO...", "...OdwpddpwdO...", "...OddddddddO...", "...OdbpbbpbdO...", "....ObbbbbbO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OdddbbbbdddO..", "..OdddbbbbdddO..", "..OddddddddddO.."], "pal": {"d": "#43c6c0", "D": "#2a9a96", "b": "#d8f7f2", "z": "#ff9f43", "w": "#ffffff", "p": "#20223a", "O": "#15172a"}, "bg": ["#78decd", "#aaecde"]}, {"name": "Heroina", "rows": ["................", "................", "....OOOOOOOO....", "...OhhhhhhhhO...", "...OhhhhhhhhO...", "...OhOssssOhO...", "...OmwwmmwwmO...", "...OmwpmmpwmO...", "...OhsssssshO...", "...OhsssssshO...", "....OOsoosOO....", "......OOOO......", "...OOOOOOOOOO...", "..OCCccccccCCO..", "..OCCccyyccCCO..", "..OCCccccccCCO.."], "pal": {"h": "#6e4a2a", "s": "#f4c99c", "m": "#ff5046", "w": "#ffffff", "p": "#20223a", "o": "#c46250", "c": "#3d7beb", "C": "#d64646", "y": "#ffcd46", "O": "#15172a"}, "bg": ["#7896eb", "#b4c8f5"]}];
+var _avSeq = 0;
+function avatarSVG(i){
+  var a = AVATARS[i % AVATARS.length];
+  var gid = "avg" + (_avSeq++);
+  var px = "";
+  for(var y=0;y<16;y++){
+    var row = a.rows[y];
+    for(var x=0;x<16;x++){
+      var ch = row.charAt(x);
+      if(ch===".") continue;
+      px += '<rect x="'+x+'" y="'+y+'" width="1.04" height="1.04" fill="'+(a.pal[ch]||"#15172a")+'"/>';
+    }
+  }
+  return '<svg viewBox="0 0 16 16" preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges" style="width:100%;height:100%;display:block">'
+    + '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">'
+    +   '<stop offset="0" stop-color="'+a.bg[0]+'"/><stop offset="1" stop-color="'+a.bg[1]+'"/>'
+    + '</linearGradient></defs>'
+    + '<rect x="0" y="0" width="16" height="16" fill="url(#'+gid+')"/>'
+    + px + '</svg>';
+}
+
+/* ====================== ICONOS / MEDALLAS (svg) ====================== */
+function iconPath(name){
+  switch(name){
+    case "star":   return '<polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9" />';
+    case "bolt":   return '<polygon points="13,2 4,14 11,14 9,22 20,9 13,9" />';
+    case "plus":   return '<rect x="10" y="3" width="4" height="18"/><rect x="3" y="10" width="18" height="4"/>';
+    case "minus":  return '<rect x="3" y="10" width="18" height="4"/>';
+    case "times":  return '<rect x="3" y="10" width="18" height="4" transform="rotate(45 12 12)"/><rect x="3" y="10" width="18" height="4" transform="rotate(-45 12 12)"/>';
+    case "crown":  return '<polygon points="2,20 4,7 9,12 12,4 15,12 20,7 22,20" /><rect x="2" y="19" width="20" height="3"/>';
+    case "trophy": return '<path d="M6 3h12v4a6 6 0 0 1-12 0V3z"/><rect x="10" y="12" width="4" height="5"/><rect x="7" y="17" width="10" height="3"/>';
+    case "flame":  return '<path d="M12 2c3 4 5 6 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/>';
+    case "target": return '<circle cx="12" cy="12" r="9" fill="none" stroke-width="3" stroke="currentColor"/><circle cx="12" cy="12" r="4" fill="none" stroke-width="3" stroke="currentColor"/><circle cx="12" cy="12" r="1.5"/>';
+    case "infinity": return '<path d="M7 12a3 3 0 1 1 3 3c-2 0-3-3-3-3s-1-3-3-3a3 3 0 1 0 0 6" fill="none" stroke="currentColor" stroke-width="3"/><path d="M17 12a3 3 0 1 0-3 3c2 0 3-3 3-3" fill="none" stroke="currentColor" stroke-width="3"/>';
+    case "brain":  return '<circle cx="9" cy="10" r="5"/><circle cx="15" cy="10" r="5"/><rect x="6" y="10" width="12" height="8" rx="3"/>';
+    case "book":   return '<path d="M4 4h7v16H4z"/><path d="M13 4h7v16h-7z"/>';
+    default:       return '<circle cx="12" cy="12" r="9"/>';
+  }
+}
+function medalSVG(tier, icon, locked){
+  var ring = tier==="gold" ? "#ffcf3f" : tier==="silver" ? "#cfd6e2" : "#cd874b";
+  var ringD = tier==="gold" ? "#e0a51e" : tier==="silver" ? "#9aa6bd" : "#9c5e2e";
+  var rib = tier==="gold" ? "#ff6b5e" : tier==="silver" ? "#3d9bff" : "#37c871";
+  if(locked){ ring="#c9ccdb"; ringD="#9aa0b8"; rib="#b6bacb"; }
+  return '<svg class="msvg" viewBox="0 0 64 64" shape-rendering="geometricPrecision">'
+    + '<polygon points="22,30 14,58 22,52 30,58 30,34" fill="'+rib+'" stroke="#23263d" stroke-width="2"/>'
+    + '<polygon points="42,30 50,58 42,52 34,58 34,34" fill="'+rib+'" stroke="#23263d" stroke-width="2"/>'
+    + '<circle cx="32" cy="24" r="20" fill="'+ring+'" stroke="#23263d" stroke-width="3"/>'
+    + '<circle cx="32" cy="24" r="14" fill="none" stroke="'+ringD+'" stroke-width="3"/>'
+    + '<g transform="translate(20,12) scale(1.0)" fill="#23263d" color="#23263d">' + iconPath(icon) + '</g>'
+    + (locked ? '<g transform="translate(24,16)"><rect x="0" y="8" width="16" height="12" rx="2" fill="#5a5f78"/><path d="M3 8V6a5 5 0 0 1 10 0v2" fill="none" stroke="#5a5f78" stroke-width="2.5"/></g>' : '')
+    + '</svg>';
+}
+
+/* ====================== DEFINICIÓN DE MEDALLAS ====================== */
+var ACHIEVEMENTS = [
+  {id:"primer_paso", name:"Primer paso", desc:"Termina tu primera práctica", tier:"bronze", icon:"book",
+    cond:function(){ return DATA.stats.totalAnswered>=1; }},
+  {id:"diez", name:"Calentando", desc:"10 respuestas correctas", tier:"bronze", icon:"bolt",
+    cond:function(){ return DATA.stats.totalCorrect>=10; }},
+  {id:"cien", name:"Cerebro de oro", desc:"100 respuestas correctas", tier:"gold", icon:"brain",
+    cond:function(){ return DATA.stats.totalCorrect>=100; }},
+  {id:"combo10", name:"Combo x10", desc:"10 aciertos seguidos", tier:"silver", icon:"flame",
+    cond:function(){ return DATA.stats.bestStreak>=10; }},
+  {id:"combo20", name:"Imparable", desc:"20 aciertos seguidos", tier:"gold", icon:"flame",
+    cond:function(){ return DATA.stats.bestStreak>=20; }},
+  {id:"sumas20", name:"As de las sumas", desc:"20 sumas correctas", tier:"silver", icon:"plus",
+    cond:function(){ return DATA.stats.suma.correct>=20; }},
+  {id:"restas20", name:"As de las restas", desc:"20 restas correctas", tier:"silver", icon:"minus",
+    cond:function(){ return DATA.stats.resta.correct>=20; }},
+  {id:"tablas_aprendiz", name:"Aprendiz de tablas", desc:"Domina 3 tablas (★ o más)", tier:"bronze", icon:"times",
+    cond:function(){ return tablesWithStars(1)>=3; }},
+  {id:"tablas_maestro", name:"Maestro de tablas", desc:"Todas las tablas con ★★", tier:"gold", icon:"crown",
+    cond:function(){ return tablesWithStars(2)>=10; }},
+  {id:"examen_perfecto", name:"Examen perfecto", desc:"Saca 10 de 10 en un examen", tier:"gold", icon:"target",
+    cond:function(){ return DATA.stats.exams.perfect>=1; }},
+  {id:"examen5", name:"Examinado", desc:"Completa 5 exámenes", tier:"silver", icon:"book",
+    cond:function(){ return DATA.stats.exams.completed>=5; }},
+  {id:"experto", name:"Nivel experto", desc:"Examen difícil perfecto", tier:"gold", icon:"trophy",
+    cond:function(){ return DATA.stats.exams.perfectHard>=1; }},
+  {id:"coleccionista", name:"Coleccionista", desc:"Consigue 8 medallas", tier:"gold", icon:"star",
+    cond:function(){ return unlockedCount()>=8; }},
+  {id:"maraton", name:"Maratón mental", desc:"Responde 200 ejercicios", tier:"silver", icon:"infinity",
+    cond:function(){ return DATA.stats.totalAnswered>=200; }}
+];
+function tablesWithStars(min){ var c=0; for(var t=1;t<=10;t++){ if((DATA.stars.mult[t]||0)>=min) c++; } return c; }
+function unlockedCount(){ var c=0; for(var k in DATA.achievements){ if(DATA.achievements[k]) c++; } return c; }
+function achById(id){ for(var i=0;i<ACHIEVEMENTS.length;i++){ if(ACHIEVEMENTS[i].id===id) return ACHIEVEMENTS[i]; } return null; }
+
+function checkAchievements(){
+  var newly=[];
+  for(var i=0;i<ACHIEVEMENTS.length;i++){
+    var a=ACHIEVEMENTS[i];
+    if(!DATA.achievements[a.id] && a.cond()){ DATA.achievements[a.id]=true; newly.push(a); }
+  }
+  if(newly.length){ saveData(); newly.forEach(function(a){ toast(a); }); }
+  refreshChip();
+  return newly;
+}
+
+/* ====================== GENERADORES ====================== */
+// Multiplicación
+function genMult(table){
+  var b = rnd(1,10);
+  return { kind:"mult", a:table, b:b, answer:table*b };
+}
+function genMultMixed(){
+  var a = rnd(2,10), b = rnd(2,10);
+  return { kind:"mult", a:a, b:b, answer:a*b };
+}
+// Suma llevando — garantiza acarreo en unidades
+function genSuma(diff){
+  var a,b;
+  if(diff==="facil"){           // 2 cifras + 1 cifra
+    var ua=rnd(2,8); var ta=rnd(1,8);
+    var ub=rnd(10-ua,9);        // fuerza llevada en unidades
+    a = ta*10+ua; b = ub;
+  } else if(diff==="medio"){    // 2 cifras + 2 cifras
+    var ua2=rnd(2,8); var ub2=rnd(10-ua2,9);
+    var ta2=rnd(1,8); var tb2=rnd(1,9-Math.min(ta2,1));
+    a = ta2*10+ua2; b = (rnd(1,8))*10+ub2;
+  } else {                      // dificil: 3 cifras + 3 cifras
+    var ua3=rnd(2,8); var ub3=rnd(10-ua3,9);
+    a = rnd(1,8)*100 + rnd(1,8)*10 + ua3;
+    b = rnd(1,7)*100 + rnd(1,8)*10 + ub3;
+  }
+  return { kind:"suma", a:a, b:b, answer:a+b };
+}
+// Resta llevando — garantiza préstamo en unidades y resultado positivo
+function genResta(diff){
+  var a,b;
+  if(diff==="facil"){           // 2 cifras - 1 cifra con préstamo
+    var ua=rnd(0,7); var ta=rnd(2,9);
+    var ub=rnd(ua+1,9);         // unidad de b mayor que la de a -> presta
+    a = ta*10+ua; b = ub;
+  } else if(diff==="medio"){    // 2 cifras - 2 cifras
+    var ua2=rnd(0,7); var ub2=rnd(ua2+1,9);
+    var tb2=rnd(1,6); var ta2=rnd(tb2+2,9);   // resultado de decenas >=1 (sin cero a la izquierda)
+    a = ta2*10+ua2; b = tb2*10+ub2;
+  } else {                      // dificil: 3 cifras - 3 cifras
+    var ua3=rnd(0,7); var ub3=rnd(ua3+1,9);
+    var tb=rnd(1,7);  var ta=rnd(tb,9);
+    var hb=rnd(1,6);  var ha=rnd(hb+2,9);     // resultado de centenas >=1
+    a = ha*100 + ta*10 + ua3;
+    b = hb*100 + tb*10 + ub3;
+  }
+  if(a<b){ var tmp=a; a=b; b=tmp; }
+  return { kind:"resta", a:a, b:b, answer:a-b };
+}
+
+function buildQuestions(topic, key, count){
+  var qs=[];
+  if(topic==="mult"){
+    if(key==="mix"){ for(var i=0;i<count;i++) qs.push(genMultMixed()); }
+    else {
+      var bs=[]; for(var j=1;j<=10;j++) bs.push(j); shuffle(bs);
+      for(var k=0;k<count;k++){ var b=bs[k%bs.length]; qs.push({kind:"mult", a:parseInt(key), b:b, answer:parseInt(key)*b}); }
+    }
+  } else if(topic==="suma"){ for(var s=0;s<count;s++) qs.push(genSuma(key)); }
+  else if(topic==="resta"){ for(var r=0;r<count;r++) qs.push(genResta(key)); }
+  else if(topic==="mixexam"){
+    for(var m=0;m<count;m++){
+      var pick=rnd(0,2);
+      if(pick===0) qs.push(genMultMixed());
+      else if(pick===1) qs.push(genSuma(key));
+      else qs.push(genResta(key));
+    }
+  }
+  return qs;
+}
+
+/* ====================== ESTADO DE NAVEGACIÓN ====================== */
+var QUIZ = null;
+
+function goHome(){ QUIZ=null; renderHome(); window.scrollTo(0,0); }
+
+/* ---------- chip / perfil ---------- */
+function refreshChip(){
+  $("chipAv").innerHTML = avatarSVG(DATA.avatar);
+  $("chipName").textContent = DATA.name || "Jugador";
+  $("chipMedals").textContent = unlockedCount();
+}
+
+/* ====================== PANTALLA: INICIO ====================== */
+function renderHome(){
+  var s = DATA.stats;
+  var medals = unlockedCount();
+  var html = ''
+  + '<div class="hero block">'
+  +   '<div class="big-av">'+avatarSVG(DATA.avatar)+'</div>'
+  +   '<div class="htxt">'
+  +     '<h2>¡Hola, '+escapeHtml(DATA.name||"explorador")+'!</h2>'
+  +     '<p>¿Lista para tu aventura de hoy? Elige un mundo para entrenar.</p>'
+  +     '<div class="stat-row">'
+  +       '<div class="stat">✅ <b>'+s.totalCorrect+'</b> aciertos</div>'
+  +       '<div class="stat">🔥 mejor racha <b>'+s.bestStreak+'</b></div>'
+  +       '<div class="stat">🏅 <b>'+medals+'</b>/'+ACHIEVEMENTS.length+' medallas</div>'
+  +     '</div>'
+  +   '</div>'
+  + '</div>'
+  + '<div class="section-title">ELIGE TU MUNDO</div>'
+  + '<div class="grid">'
+  +   modeCard("var(--purple)","times","Tablas","Multiplicar del 1 al 10","selMult()")
+  +   modeCard("var(--green)","plus","Sumas","Con llevadas, fácil a difícil","selSuma()")
+  +   modeCard("var(--orange)","minus","Restas","Con llevadas, fácil a difícil","selResta()")
+  +   modeCard("var(--gold)","target","Examen","Pon a prueba lo aprendido","selExam()")
+  +   modeCard("var(--teal)","star","Medallas","Mira tus logros","renderMedallas()")
+  +   modeCard("var(--blue)","trophy","Progreso","Tu mapa de estrellas","renderProgress()")
+  + '</div>';
+  $("screen").innerHTML = html;
+}
+function modeCard(color, icon, title, sub, onclick){
+  return '<div class="card block" onclick="'+onclick+'">'
+    + '<div class="top" style="background:'+color+'"></div>'
+    + '<div class="body">'
+    +   '<div class="ic"><svg viewBox="0 0 24 24" style="width:100%;height:100%" fill="'+color+'">'+iconPath(icon)+'</svg></div>'
+    +   '<h3>'+title+'</h3><p>'+sub+'</p>'
+    + '</div></div>';
+}
+
+/* ====================== PANTALLA: SELECCIÓN TABLAS ====================== */
+function selMult(){
+  var html = backBar("Tablas de multiplicar")
+   + '<div class="panel block"><h2>Elige una tabla</h2><p class="sub">Empieza por las pequeñas. Cuando domines varias, ¡prueba el Reto Mixto!</p>'
+   + '<div class="tables-grid">';
+  for(var t=1;t<=10;t++){
+    var st = DATA.stars.mult[t]||0;
+    html += '<div class="tile" onclick="startQuiz(\'mult\','+t+',\'Tabla del '+t+'\',false)">'
+      + '<div class="tn">'+t+'</div><div class="tl">tabla</div><div class="st">'+starStr(st)+'</div></div>';
+  }
+  html += '<div class="tile mixto" onclick="startQuiz(\'mult\',\'mix\',\'Reto Mixto\',false)">'
+       + '<div class="tn">RETO<br>MIXTO</div><div class="tl">todas las tablas</div></div>';
+  html += '</div></div>';
+  $("screen").innerHTML = html; window.scrollTo(0,0);
+}
+
+/* ====================== PANTALLA: SUMA / RESTA ====================== */
+function selSuma(){ renderDiffSelect("suma","Sumas con llevadas","var(--green)",
+  ["2 cifras + 1 cifra","2 cifras + 2 cifras","3 cifras + 3 cifras"]); }
+function selResta(){ renderDiffSelect("resta","Restas con llevadas","var(--orange)",
+  ["2 cifras − 1 cifra","2 cifras − 2 cifras","3 cifras − 3 cifras"]); }
+
+function renderDiffSelect(topic, title, color, descs){
+  var keys=["facil","medio","dificil"], labels=["Fácil","Medio","Difícil"], cls=["facil","medio","dificil"];
+  var html = backBar(title)
+   + '<div class="panel block"><h2>Elige la dificultad</h2><p class="sub">Sube de nivel cuando te sientas preparada. En las tres te llevas una.</p>'
+   + '<div class="pills">';
+  for(var i=0;i<3;i++){
+    var st = DATA.stars[topic][keys[i]]||0;
+    html += '<div class="pill '+cls[i]+'" onclick="startQuiz(\''+topic+'\',\''+keys[i]+'\',\''+title+' · '+labels[i]+'\',false)">'
+      + '<div class="pl">'+labels[i]+'</div><div class="pd">'+descs[i]+'</div><div class="st">'+starStr(st)+'</div></div>';
+  }
+  html += '</div></div>';
+  $("screen").innerHTML = html; window.scrollTo(0,0);
+}
+
+/* ====================== PANTALLA: EXAMEN ====================== */
+var examSel = { topic:"mult", diff:"medio" };
+function selExam(){
+  var html = backBar("Examen")
+   + '<div class="panel block"><h2>Prepara tu examen</h2><p class="sub">10 preguntas, sin segundas oportunidades. ¡Consigue 10/10 para una medalla!</p>'
+   + '<div style="font-weight:900;margin:4px 0 6px">Tema</div><div class="choose-row" id="examTopic">'
+   +   examChip("mult","Tablas") + examChip("suma","Sumas") + examChip("resta","Restas") + examChip("mixexam","Todo mezclado")
+   + '</div>'
+   + '<div style="font-weight:900;margin:10px 0 6px">Dificultad</div><div class="choose-row" id="examDiff">'
+   +   examDiffChip("facil","Fácil") + examDiffChip("medio","Medio") + examDiffChip("dificil","Difícil")
+   + '</div>'
+   + '<div style="margin-top:16px"><div class="btn gold" style="display:inline-block" onclick="startExam()">¡Empezar examen!</div></div>'
+   + '</div>';
+  $("screen").innerHTML = html; window.scrollTo(0,0);
+  updateExamChips();
+}
+function examChip(v,l){ return '<div class="chip" data-t="'+v+'" onclick="examSel.topic=\''+v+'\';updateExamChips()">'+l+'</div>'; }
+function examDiffChip(v,l){ return '<div class="chip" data-d="'+v+'" onclick="examSel.diff=\''+v+'\';updateExamChips()">'+l+'</div>'; }
+function updateExamChips(){
+  var ts=document.querySelectorAll('#examTopic .chip'); for(var i=0;i<ts.length;i++){ ts[i].classList.toggle('on', ts[i].getAttribute('data-t')===examSel.topic); }
+  var ds=document.querySelectorAll('#examDiff .chip'); for(var j=0;j<ds.length;j++){ ds[j].classList.toggle('on', ds[j].getAttribute('data-d')===examSel.diff); }
+}
+function startExam(){
+  var titleMap={mult:"Tablas",suma:"Sumas",resta:"Restas",mixexam:"Todo mezclado"};
+  var diffMap={facil:"Fácil",medio:"Medio",dificil:"Difícil"};
+  var key = examSel.topic==="mult" ? "mix" : examSel.diff;
+  startQuiz(examSel.topic, key, "Examen · "+titleMap[examSel.topic]+" · "+diffMap[examSel.diff], true, examSel.diff);
+}
+
+/* ====================== MOTOR DE QUIZ ====================== */
+function startQuiz(topic, key, label, isExam, diffForExam){
+  var count = 10;
+  var qs = buildQuestions(topic==="mult"?"mult":(topic==="mixexam"?"mixexam":topic), key, count);
+  QUIZ = {
+    topic: topic, key: key, label: label, isExam: !!isExam,
+    diff: diffForExam || (topic==="mult"?null:key),
+    questions: qs, index:0, correct:0, count: qs.length,
+    input:"", answered:false, streak:0,
+    cuaderno: (topic==="suma" || topic==="resta"), showHelp: !isExam, problemMistake:false
+  };
+  renderQuiz();
+  window.scrollTo(0,0);
+}
+
+function renderQuiz(){
+  var q = QUIZ.questions[QUIZ.index];
+  var pct = Math.round((QUIZ.index)/QUIZ.count*100);
+  var inner;
+  if(QUIZ.cuaderno){
+    QUIZ.cu = cuadernoBuild(q);
+    QUIZ.problemMistake = false;
+    inner = (QUIZ.showHelp ? '<div class="cu-hint" id="cuHint"></div>' : '') + renderCuaderno()
+          + '<div class="feedback" id="fb"></div>' + keypad();
+  } else {
+    inner = renderQuestionBody(q)
+          + '<div class="feedback" id="fb"></div>'
+          + '<div class="answer-box" id="answerBoxWrap">'+renderAnswerArea(q)+'</div>'
+          + keypad();
+  }
+  var qhtml = ''
+  + '<div class="back-bar"><div class="btn ghost sm" onclick="confirmQuit()">⟵ Salir</div>'
+  +   '<div class="streak" title="racha"><svg width="16" height="16" viewBox="0 0 24 24" fill="#ff7a00">'+iconPath("flame")+'</svg> x'+QUIZ.streak+'</div></div>'
+  + '<div class="quiz-head"><div class="qmeta">'+ (QUIZ.isExam?'EXAMEN':'PRÁCTICA') +' · '+ (QUIZ.index+1) +'/'+QUIZ.count+'</div>'
+  +   '<div class="qmeta">'+escapeHtml(QUIZ.label)+'</div></div>'
+  + '<div class="progress"><div class="bar" style="width:'+pct+'%"></div></div>'
+  + '<div class="qcard block" id="qcard">'+inner+'</div>';
+  $("screen").innerHTML = qhtml;
+  QUIZ.input=""; QUIZ.answered=false;
+  if(QUIZ.cuaderno){ setActiveCell(); if(QUIZ.showHelp) updateCuHint(); }
+  else { refreshAnswer(); }
+}
+
+function renderQuestionBody(q){
+  if(q.kind==="mult"){
+    return '<div class="mult-q">'+q.a+' <span class="x">×</span> '+q.b+'</div>';
+  }
+  var op = q.kind==="suma" ? "+" : "−";
+  // columna vertical
+  return '<div class="vsum">'
+    + '<div class="row">'+q.a+'</div>'
+    + '<div class="row"><span class="op">'+op+'</span>'+q.b+'</div>'
+    + '<hr>'
+    + '<div class="row res" id="vres">&nbsp;</div>'
+    + '</div>';
+}
+function renderAnswerArea(q){
+  if(q.kind==="mult"){
+    return '<div class="answer-display empty" id="ansDisp">?</div>';
+  }
+  return ''; // para sumas/restas el resultado se muestra en la columna
+}
+function refreshAnswer(){
+  var q = QUIZ.questions[QUIZ.index];
+  if(q.kind==="mult"){
+    var d=$("ansDisp");
+    if(d){ d.textContent = QUIZ.input==="" ? "?" : QUIZ.input; d.classList.toggle("empty", QUIZ.input===""); }
+  } else {
+    var r=$("vres");
+    if(r){ r.innerHTML = (QUIZ.input==="" ? '<span class="cursor">_</span>' : QUIZ.input+'<span class="cursor">_</span>'); }
+  }
+}
+function keypad(){
+  var keys=["1","2","3","4","5","6","7","8","9"];
+  var h='<div class="keypad">';
+  for(var i=0;i<keys.length;i++){ h+='<div class="key" onclick="press(\''+keys[i]+'\')">'+keys[i]+'</div>'; }
+  h+='<div class="key del" onclick="press(\'del\')">⌫</div>';
+  h+='<div class="key" onclick="press(\'0\')">0</div>';
+  h+='<div class="key ok" onclick="submitAnswer()">OK</div>';
+  h+='</div>';
+  return h;
+}
+function press(k){
+  if(!QUIZ || QUIZ.answered) return;
+  if(QUIZ.cuaderno){ if(/^[0-9]$/.test(k)) cuadernoPress(k); return; }
+  if(k==="del"){ QUIZ.input = QUIZ.input.slice(0,-1); }
+  else { if(QUIZ.input.length>=5) return; QUIZ.input += k; }
+  refreshAnswer();
+}
+
+function submitAnswer(){
+  if(!QUIZ || QUIZ.answered || QUIZ.input==="") return;
+  var q = QUIZ.questions[QUIZ.index];
+  var val = parseInt(QUIZ.input,10);
+  var ok = (val===q.answer);
+  QUIZ.answered = true;
+
+  // stats globales + por tema
+  DATA.stats.totalAnswered++;
+  if(ok){
+    DATA.stats.totalCorrect++;
+    QUIZ.correct++;
+    QUIZ.streak++;
+    if(QUIZ.streak>DATA.stats.bestStreak) DATA.stats.bestStreak=QUIZ.streak;
+  } else {
+    QUIZ.streak=0;
+  }
+  if(q.kind==="mult"){
+    if(ok){ DATA.stats.mult.correct++; var t=q.a; DATA.stats.mult.perTable[t]=(DATA.stats.mult.perTable[t]||0)+1; }
+  } else if(q.kind==="suma"){ if(ok) DATA.stats.suma.correct++; }
+  else if(q.kind==="resta"){ if(ok) DATA.stats.resta.correct++; }
+  saveData();
+
+  // feedback visual
+  var card=$("qcard"); var fb=$("fb");
+  if(ok){
+    card.classList.add("flash-ok");
+    fb.className="feedback ok"; fb.textContent = pick(["¡Genial!","¡Correcto!","¡Bien hecho!","¡Eres crack!","¡Sigue así!"]);
+    if(q.kind!=="mult"){ var r=$("vres"); if(r) r.innerHTML=String(q.answer); }
+    checkAchievements();
+    setTimeout(nextQuestion, 750);
+  } else {
+    card.classList.add("flash-no");
+    fb.className="feedback no"; fb.innerHTML = "La respuesta era <b>"+q.answer+"</b>";
+    if(q.kind!=="mult"){ var r2=$("vres"); if(r2) r2.innerHTML=String(q.answer); }
+    else { var d=$("ansDisp"); if(d){ d.textContent=q.answer; d.classList.remove("empty"); } }
+    checkAchievements();
+    // botón continuar para que lea la respuesta
+    var wrap=$("answerBoxWrap");
+    if(wrap) wrap.innerHTML = '<div class="btn red" onclick="nextQuestion()">Entendido ➜</div>';
+    // desactivar keypad
+    var keysEl=document.querySelector('.keypad'); if(keysEl) keysEl.style.opacity=".35", keysEl.style.pointerEvents="none";
+  }
+}
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+
+function nextQuestion(){
+  QUIZ.index++;
+  if(QUIZ.index>=QUIZ.count){ finishQuiz(); return; }
+  renderQuiz();
+}
+
+/* ===================== MODO CUADERNO (sumas con llevadas) ===================== */
+function cuadernoBuild(q){
+  var aLen=String(q.a).length, bLen=String(q.b).length;
+  var n=Math.max(aLen,bLen);
+  var as=[], bs=[];
+  var sa=String(q.a), sb=String(q.b);
+  for(var i=0;i<n;i++){ as.unshift(i<sa.length?parseInt(sa[sa.length-1-i],10):0); bs.unshift(i<sb.length?parseInt(sb[sb.length-1-i],10):0); }
+  var carries=[], res=[]; for(var z=0;z<=n;z++){ carries.push(0); res.push(0); }
+  var cells=[], finalCarry=0, topPos;
+  if(q.kind==="resta"){
+    // método de llevadas (compensación): la llevada se suma a la cifra de abajo
+    for(var p=0;p<n;p++){
+      var t=as[n-1-p], bd=bs[n-1-p], eff=bd+carries[p];
+      if(t>=eff){ res[p]=t-eff; carries[p+1]=0; }
+      else { res[p]=t+10-eff; carries[p+1]=1; }
+    }
+    for(var i2=0;i2<n;i2++){
+      cells.push({kind:"res", pos:i2, exp:res[i2]});
+      if(i2<n-1 && carries[i2+1]>0) cells.push({kind:"carry", pos:i2+1, exp:carries[i2+1]});
+    }
+    topPos=n-1;
+  } else {
+    for(var p2=0;p2<n;p2++){
+      var ad=as[n-1-p2], bd2=bs[n-1-p2], s=ad+bd2+carries[p2];
+      res[p2]=s%10; carries[p2+1]=Math.floor(s/10);
+    }
+    finalCarry=carries[n]; res[n]=finalCarry;
+    for(var i3=0;i3<n;i3++){
+      cells.push({kind:"res", pos:i3, exp:res[i3]});
+      if(i3<n-1 && carries[i3+1]>0) cells.push({kind:"carry", pos:i3+1, exp:carries[i3+1]});
+    }
+    if(finalCarry>0) cells.push({kind:"res", pos:n, exp:res[n]});
+    topPos = finalCarry>0 ? n : n-1;
+  }
+  var cols=[]; for(var c=topPos;c>=0;c--) cols.push(c);
+  return {kind:q.kind, op:(q.kind==="resta"?"−":"+"), a:q.a, b:q.b, as:as, bs:bs, n:n,
+          aLen:aLen, bLen:bLen, carries:carries, res:res, finalCarry:finalCarry,
+          cells:cells, cols:cols, idx:0, mistakes:0};
+}
+function renderCuaderno(){
+  var cu=QUIZ.cu, P=cu.cols, C=P.length, h='', k;
+  function carryCell(p){
+    if(p>=1 && p<=cu.n-1 && cu.carries[p]>0) return '<div class="cu-carry"><div class="cu-cell cu-carrybox" id="cy'+p+'"></div></div>';
+    return '<div class="cu-carry"></div>';
+  }
+  h+='<div class="cu-grid" style="grid-template-columns:30px repeat('+C+',42px)">';
+  if(cu.kind!=="resta"){ // llevadas ARRIBA (sumas)
+    h+='<div></div>'; for(k=0;k<C;k++) h+=carryCell(P[k]);
+  }
+  // fila A (minuendo / primer sumando)
+  h+='<div></div>';
+  for(k=0;k<C;k++){ var pa=P[k]; h+='<div class="cu-d">'+(pa<cu.aLen?cu.as[cu.n-1-pa]:'')+'</div>'; }
+  // fila B con operador
+  h+='<div class="cu-op">'+cu.op+'</div>';
+  for(k=0;k<C;k++){ var pb=P[k]; h+='<div class="cu-d">'+(pb<cu.bLen?cu.bs[cu.n-1-pb]:'')+'</div>'; }
+  if(cu.kind==="resta"){ // llevadas ABAJO, junto al número de abajo (restas)
+    h+='<div></div>'; for(k=0;k<C;k++) h+=carryCell(P[k]);
+  }
+  // raya
+  h+='<div class="cu-line"></div>';
+  // fila resultado
+  h+='<div></div>';
+  for(k=0;k<C;k++){ var pr=P[k]; h+='<div class="cu-cell cu-resbox" id="rs'+pr+'"></div>'; }
+  h+='</div>';
+  return h;
+}
+function cellBox(c){ return document.getElementById((c.kind==="carry"?"cy":"rs")+c.pos); }
+function setActiveCell(){
+  var boxes=document.querySelectorAll('.cu-cell');
+  for(var i=0;i<boxes.length;i++) boxes[i].classList.remove('active');
+  var cu=QUIZ.cu; if(cu.idx>=cu.cells.length) return;
+  var b=cellBox(cu.cells[cu.idx]); if(b) b.classList.add('active');
+}
+function posName(p){ return ["unidades","decenas","centenas","millares"][p] || "cifras"; }
+function updateCuHint(){
+  var cu=QUIZ.cu, el=document.getElementById('cuHint'); if(!el || cu.idx>=cu.cells.length) return;
+  el.classList.remove('cu-hint-warn');
+  var c=cu.cells[cu.idx];
+  if(c.kind==="carry") el.textContent = (cu.kind==="resta") ? "Apunta abajo la llevada (la sumas a la de abajo)" : "Escribe arriba la llevada";
+  else if(cu.kind!=="resta" && c.pos===cu.n) el.textContent="Baja la última llevada";
+  else el.textContent = (cu.kind==="resta"?"Resta la columna de las ":"Suma la columna de las ")+posName(c.pos);
+}
+function hintFor(c){
+  var cu=QUIZ.cu;
+  if(c.kind==="carry") return cu.kind==="resta" ? "No llega: te llevas 1 y se la sumas a la cifra de abajo" : "Te llevas "+c.exp+" a la siguiente columna";
+  if(cu.kind!=="resta" && c.pos===cu.n) return "Baja la llevada: escribe "+c.exp;
+  var p=c.pos, ad=(p<cu.aLen?cu.as[cu.n-1-p]:0), bd=(p<cu.bLen?cu.bs[cu.n-1-p]:0), ci=cu.carries[p];
+  if(cu.kind==="resta"){
+    var eff=bd+ci;
+    if(ad>=eff) return ad+" - "+eff+" = "+(ad-eff);
+    return ad+" no llega a "+eff+": haz "+(ad+10)+" - "+eff+" = "+(ad+10-eff)+" (y te llevas una)";
+  }
+  var s=ad+bd+ci, t=ad+"+"+bd; if(ci>0) t+="+"+ci+" (llevabas)";
+  return t+" = "+s+", escribe "+(s%10);
+}
+function showCuHint(t){
+  var el=document.getElementById('cuHint'); if(!el) return;
+  el.textContent=t; el.classList.add('cu-hint-warn');
+}
+function cuadernoPress(d){
+  var cu=QUIZ.cu; if(QUIZ.answered) return;
+  var c=cu.cells[cu.idx], box=cellBox(c);
+  if(parseInt(d,10)===c.exp){
+    box.textContent=d; box.classList.remove('active','bad'); box.classList.add('ok');
+    cu.idx++;
+    if(cu.idx>=cu.cells.length) finalizeCuaderno();
+    else { setActiveCell(); if(QUIZ.showHelp) updateCuHint(); }
+  } else {
+    cu.mistakes++; QUIZ.problemMistake=true;
+    box.classList.remove('ok'); box.classList.add('bad');
+    (function(bx){ setTimeout(function(){ bx.classList.remove('bad'); }, 430); })(box);
+    if(QUIZ.showHelp) showCuHint(hintFor(c));
+  }
+}
+function finalizeCuaderno(){
+  QUIZ.answered=true;
+  DATA.stats.totalAnswered++;
+  var ok=!QUIZ.problemMistake;
+  if(ok){
+    DATA.stats.totalCorrect++;
+    if(QUIZ.topic==="resta") DATA.stats.resta.correct++; else DATA.stats.suma.correct++;
+    QUIZ.correct++; QUIZ.streak++;
+    if(QUIZ.streak>DATA.stats.bestStreak) DATA.stats.bestStreak=QUIZ.streak;
+  } else { QUIZ.streak=0; }
+  saveData();
+  var card=document.getElementById('qcard'), fb=document.getElementById('fb'), hint=document.getElementById('cuHint');
+  if(card) card.classList.add('flash-ok');
+  if(hint) hint.textContent="";
+  if(fb){ fb.className="feedback ok"; fb.textContent = ok ? pick(["¡Resuelta!","¡Perfecto!","¡Muy bien!","¡Lo clavaste!"]) : "¡Hecho! Repásala la próxima vez"; }
+  checkAchievements();
+  setTimeout(nextQuestion, QUIZ.showHelp ? 950 : 600);
+}
+
+function finishQuiz(){
+  var score=QUIZ.correct, total=QUIZ.count;
+  var stars = score>=total ? 3 : score>=Math.ceil(total*0.7) ? 2 : score>=Math.ceil(total*0.5) ? 1 : 0;
+
+  // guardar estrellas de dominio (toma el máximo)
+  if(QUIZ.topic==="mult" && QUIZ.key!=="mix"){
+    var t=parseInt(QUIZ.key,10);
+    DATA.stars.mult[t]=Math.max(DATA.stars.mult[t]||0, stars);
+  } else if(QUIZ.topic==="suma" || QUIZ.topic==="resta"){
+    DATA.stars[QUIZ.topic][QUIZ.key]=Math.max(DATA.stars[QUIZ.topic][QUIZ.key]||0, stars);
+  }
+  // examen
+  if(QUIZ.isExam){
+    DATA.stats.exams.completed++;
+    if(score===total){ DATA.stats.exams.perfect++; if(QUIZ.diff==="dificil") DATA.stats.exams.perfectHard++; }
+  }
+  saveData();
+  var newly = checkAchievements();
+  renderResults(score,total,stars,newly);
+}
+
+/* ====================== RESULTADOS ====================== */
+function renderResults(score,total,stars,newly){
+  var msgs=[
+    "¡Lo has dado todo! 💪",
+    "¡Cada vez mejor!",
+    "¡Buen trabajo, sigue entrenando!",
+    "¡Casi perfecto!",
+    "¡PERFECTO! Eres una máquina 🏆"
+  ];
+  var msg = score>=total ? msgs[4] : score>=total*0.7 ? msgs[3] : score>=total*0.5 ? msgs[1] : msgs[2];
+  var color = score>=total ? "var(--gold)" : score>=total*0.5 ? "var(--green)" : "var(--orange)";
+  if(score>=total) confettiBurst();
+
+  var medalsHtml="";
+  if(newly && newly.length){
+    medalsHtml = '<div style="margin:14px 0 4px;font-weight:900">¡Medallas nuevas!</div><div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">';
+    newly.forEach(function(a){ medalsHtml += '<div style="text-align:center;width:90px">'+medalSVG(a.tier,a.icon,false)+'<div style="font-family:var(--pixel);font-weight:700;font-size:9px;margin-top:2px">'+a.name+'</div></div>'; });
+    medalsHtml += '</div>';
+  }
+
+  var retryLabel = QUIZ.isExam ? "Otro examen" : "Repetir";
+  var html = ''
+  + '<div class="result-card block">'
+  +   '<div style="font-family:var(--pixel);font-weight:700;font-size:12px;color:var(--ink-soft)">'+escapeHtml(QUIZ.label)+'</div>'
+  +   '<div class="big" style="color:'+color+'">'+score+' / '+total+'</div>'
+  +   '<div class="stars-big">'+starStr(stars)+'</div>'
+  +   '<div class="result-msg">'+msg+'</div>'
+  +   medalsHtml
+  +   '<div class="result-actions" style="margin-top:18px">'
+  +     '<div class="btn green" onclick="repeatQuiz()">'+retryLabel+'</div>'
+  +     '<div class="btn ghost" onclick="goHome()">Inicio</div>'
+  +   '</div>'
+  + '</div>';
+  $("screen").innerHTML = html; window.scrollTo(0,0);
+}
+function repeatQuiz(){
+  if(QUIZ.isExam) startQuiz(QUIZ.topic, QUIZ.key, QUIZ.label, true, QUIZ.diff);
+  else startQuiz(QUIZ.topic, QUIZ.key, QUIZ.label, false);
+}
+
+/* ====================== MEDALLAS ====================== */
+function renderMedallas(){
+  var html = backBar("Mis medallas")
+   + '<div class="panel block"><h2>'+unlockedCount()+' / '+ACHIEVEMENTS.length+' conseguidas</h2>'
+   + '<p class="sub">Sigue practicando para desbloquearlas todas.</p>'
+   + '<div class="medals-grid">';
+  for(var i=0;i<ACHIEVEMENTS.length;i++){
+    var a=ACHIEVEMENTS[i]; var got=!!DATA.achievements[a.id];
+    html += '<div class="medal block '+(got?'':'locked')+'">'
+      + medalSVG(a.tier,a.icon,!got)
+      + '<h4>'+a.name+'</h4><p>'+a.desc+'</p></div>';
+  }
+  html += '</div></div>';
+  $("screen").innerHTML = html; window.scrollTo(0,0);
+}
+
+/* ====================== PROGRESO ====================== */
+function renderProgress(){
+  var html = backBar("Mi progreso");
+  // tablas
+  html += '<div class="panel block"><h2>Tablas de multiplicar</h2><div class="tables-grid">';
+  for(var t=1;t<=10;t++){
+    var st=DATA.stars.mult[t]||0;
+    html += '<div class="tile" style="cursor:default"><div class="tn">'+t+'</div><div class="st">'+starStr(st)+'</div></div>';
+  }
+  html += '</div></div>';
+  // sumas/restas
+  html += progressBlock("Sumas con llevadas","suma");
+  html += progressBlock("Restas con llevadas","resta");
+  // estadísticas
+  var s=DATA.stats;
+  html += '<div class="panel block"><h2>Estadísticas</h2>'
+    + '<div class="stat-row">'
+    + '<div class="stat">Total respondidas <b>'+s.totalAnswered+'</b></div>'
+    + '<div class="stat">Aciertos <b>'+s.totalCorrect+'</b></div>'
+    + '<div class="stat">Mejor racha <b>'+s.bestStreak+'</b></div>'
+    + '<div class="stat">Exámenes <b>'+s.exams.completed+'</b></div>'
+    + '<div class="stat">Perfectos <b>'+s.exams.perfect+'</b></div>'
+    + '</div>'
+    + '<div style="margin-top:16px"><div class="btn red sm" onclick="confirmReset()">Reiniciar todo el progreso</div></div>'
+    + '</div>';
+  $("screen").innerHTML = html; window.scrollTo(0,0);
+}
+function progressBlock(title, topic){
+  var keys=["facil","medio","dificil"], labels=["Fácil","Medio","Difícil"];
+  var h='<div class="panel block"><h2>'+title+'</h2><div class="pills">';
+  for(var i=0;i<3;i++){
+    var st=DATA.stars[topic][keys[i]]||0;
+    h+='<div class="pill" style="cursor:default"><div class="pl">'+labels[i]+'</div><div class="st">'+starStr(st)+'</div></div>';
+  }
+  return h+'</div></div>';
+}
+
+/* ====================== UI HELPERS ====================== */
+function backBar(title){
+  return '<div class="back-bar"><div class="btn ghost sm" onclick="goHome()">⟵ Inicio</div>'
+    + '<div class="qmeta" style="font-size:13px">'+escapeHtml(title)+'</div></div>';
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];}); }
+
+function confirmQuit(){
+  showModal('<h2>¿Salir de la práctica?</h2><p>Lo que ya has respondido se guarda igual.</p>'
+    + '<div class="result-actions"><div class="btn red" onclick="closeModal();goHome()">Sí, salir</div>'
+    + '<div class="btn ghost" onclick="closeModal()">Seguir jugando</div></div>');
+}
+function confirmReset(){
+  showModal('<h2>¿Reiniciar todo?</h2><p>Se borrarán medallas, estrellas y estadísticas. No se puede deshacer.</p>'
+    + '<div class="result-actions"><div class="btn red" onclick="doReset()">Borrar todo</div>'
+    + '<div class="btn ghost" onclick="closeModal()">Cancelar</div></div>');
+}
+function doReset(){
+  var name=DATA.name, av=DATA.avatar;
+  DATA = defaultData(); DATA.name=name; DATA.avatar=av; DATA.onboarded=true;
+  saveData(); closeModal(); refreshChip(); goHome();
+}
+
+/* ---------- modal de perfil ---------- */
+var pickAvIdx=0;
+function openProfile(){
+  pickAvIdx = DATA.avatar;
+  var avs='';
+  for(var i=0;i<AVATARS.length;i++){ avs += '<div class="av-opt'+(i===pickAvIdx?' on':'')+'" data-i="'+i+'" onclick="pickAv('+i+')">'+avatarSVG(i)+'</div>'; }
+  showModal('<h2>Tu perfil</h2><p>Elige tu nombre y tu personaje.</p>'
+    + '<input class="name-input" id="nameInput" maxlength="14" placeholder="Tu nombre" value="'+escapeHtml(DATA.name)+'">'
+    + '<div class="av-pick" id="avPick">'+avs+'</div>'
+    + '<div class="result-actions"><div class="btn green" onclick="saveProfile()">Guardar</div>'
+    + '<div class="btn ghost" onclick="closeModal()">Cancelar</div></div>');
+}
+function pickAv(i){
+  pickAvIdx=i;
+  var opts=document.querySelectorAll('#avPick .av-opt');
+  for(var k=0;k<opts.length;k++){ opts[k].classList.toggle('on', parseInt(opts[k].getAttribute('data-i'),10)===i); }
+}
+function saveProfile(){
+  var n=$("nameInput").value.trim();
+  DATA.name = n || "Explorador";
+  DATA.avatar = pickAvIdx;
+  DATA.onboarded = true;
+  saveData(); refreshChip(); closeModal(); renderHome();
+}
+
+/* ---------- onboarding ---------- */
+function welcome(){
+  pickAvIdx=0;
+  var avs='';
+  for(var i=0;i<AVATARS.length;i++){ avs += '<div class="av-opt'+(i===0?' on':'')+'" data-i="'+i+'" onclick="pickAv('+i+')">'+avatarSVG(i)+'</div>'; }
+  showModal('<h2>¡Bienvenida a Matex!</h2><p>Una aventura para dominar las tablas, las sumas y las restas. ¿Cómo te llamas?</p>'
+    + '<input class="name-input" id="nameInput" maxlength="14" placeholder="Escribe tu nombre">'
+    + '<p style="margin:0 0 8px">Elige tu personaje:</p>'
+    + '<div class="av-pick" id="avPick">'+avs+'</div>'
+    + '<div class="result-actions"><div class="btn gold" onclick="saveProfile()">¡EMPEZAR AVENTURA!</div></div>', true);
+}
+
+/* ---------- modal infra ---------- */
+function showModal(inner, noClose){
+  var bg=document.createElement('div'); bg.className='modal-bg';
+  bg.innerHTML='<div class="modal block">'+inner+'</div>';
+  if(!noClose){ bg.addEventListener('click', function(e){ if(e.target===bg) closeModal(); }); }
+  $("modalHost").innerHTML=''; $("modalHost").appendChild(bg);
+}
+function closeModal(){ $("modalHost").innerHTML=''; }
+
+/* ---------- toast medallas ---------- */
+function toast(a){
+  var t=document.createElement('div'); t.className='toast';
+  t.innerHTML = '<div style="width:34px;height:34px">'+medalSVG(a.tier,a.icon,false)+'</div>'
+    + '<div>¡Medalla nueva!<small>'+a.name+'</small></div>';
+  $("toastHost").appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 4000);
+}
+
+/* ---------- confeti ---------- */
+function confettiBurst(){
+  var colors=["#ffcf3f","#37c871","#3d9bff","#ff6b5e","#7b5cff","#ff9f43"];
+  for(var i=0;i<70;i++){
+    (function(){
+      var c=document.createElement('div'); c.className='confetti';
+      c.style.left=Math.random()*100+'vw';
+      c.style.background=colors[Math.floor(Math.random()*colors.length)];
+      c.style.transform='rotate('+Math.random()*360+'deg)';
+      document.body.appendChild(c);
+      var dur=1800+Math.random()*1400; var drift=(Math.random()-0.5)*180;
+      c.animate([
+        {top:'-10px', transform:'translateX(0px) rotate(0deg)', opacity:1},
+        {top:'105vh', transform:'translateX('+drift+'px) rotate('+(720*Math.random())+'deg)', opacity:.9}
+      ],{duration:dur, easing:'cubic-bezier(.3,.6,.5,1)'});
+      setTimeout(function(){ if(c.parentNode) c.parentNode.removeChild(c); }, dur);
+    })();
+  }
+}
+
+/* ---------- teclado físico ---------- */
+document.addEventListener('keydown', function(e){
+  if(!QUIZ || QUIZ.answered){
+    // si hay un fallo en pantalla, Enter avanza a la siguiente
+    if(e.key==="Enter"){ var cont=document.querySelector('.btn.red'); if(cont) cont.click(); }
+    return;
+  }
+  if(/^[0-9]$/.test(e.key)){ press(e.key); }
+  else if(e.key==="Backspace"){ e.preventDefault(); press("del"); }
+  else if(e.key==="Enter"){ e.preventDefault(); submitAnswer(); }
+});
+
+/* ====================== ARRANQUE ====================== */
+refreshChip();
+renderHome();
+if(!DATA.onboarded){ welcome(); }
+</script>
+</body>
+</html>
