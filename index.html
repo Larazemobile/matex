@@ -967,8 +967,8 @@ function cuadernoPress(d){
     else { setActiveCell(); if(QUIZ.showHelp) updateCuHint(); }
   } else {
     cu.mistakes++; cu.curMiss=(cu.curMiss||0)+1; QUIZ.problemMistake=true;
-    box.classList.remove('ok'); box.classList.add('bad');
-    (function(bx){ setTimeout(function(){ bx.classList.remove('bad'); }, 430); })(box);
+    box.textContent=d; box.classList.remove('ok'); box.classList.add('bad');   // muestra en rojo lo que escribió
+    (function(bx){ setTimeout(function(){ if(bx.classList.contains('bad')){ bx.classList.remove('bad'); bx.textContent=''; } }, 650); })(box);
     if(QUIZ.showHelp) showCuHint(cuHint(c));
   }
 }
