@@ -510,7 +510,7 @@ function renderHome(){
   +   '<div class="big-av">'+avatarSVG(DATA.avatar)+'</div>'
   +   '<div class="htxt">'
   +     '<h2>¡Hola, '+escapeHtml(DATA.name||"explorador")+'!</h2>'
-  +     '<p>¿Lista para tu aventura de hoy? Elige un mundo para entrenar.</p>'
+  +     '<p>¿Listo para tu aventura de hoy? Elige un mundo para entrenar.</p>'
   +     '<div class="stat-row">'
   +       '<div class="stat">✅ <b>'+s.totalCorrect+'</b> aciertos</div>'
   +       '<div class="stat">🔥 mejor racha <b>'+s.bestStreak+'</b></div>'
@@ -563,7 +563,7 @@ function selResta(){ renderDiffSelect("resta","Restas con llevadas","var(--orang
 function renderDiffSelect(topic, title, color, descs){
   var keys=["facil","medio","dificil"], labels=["Fácil","Medio","Difícil"], cls=["facil","medio","dificil"];
   var html = backBar(title)
-   + '<div class="panel block"><h2>Elige la dificultad</h2><p class="sub">Sube de nivel cuando te sientas preparada. En las tres te llevas una.</p>'
+   + '<div class="panel block"><h2>Elige la dificultad</h2><p class="sub">Sube de nivel cuando te sientas preparado. En las tres te llevas una.</p>'
    + '<div class="pills">';
   for(var i=0;i<3;i++){
     var st = DATA.stars[topic][keys[i]]||0;
@@ -1031,6 +1031,7 @@ function pickAv(i){
   pickAvIdx=i;
   var opts=document.querySelectorAll('#avPick .av-opt');
   for(var k=0;k<opts.length;k++){ opts[k].classList.toggle('on', parseInt(opts[k].getAttribute('data-i'),10)===i); }
+  var m=document.querySelector('.modal'); if(m){ try{ m.scrollTo({top:m.scrollHeight, behavior:'smooth'}); }catch(e){ m.scrollTop=m.scrollHeight; } }
 }
 function saveProfile(){
   var n=$("nameInput").value.trim();
@@ -1045,7 +1046,7 @@ function welcome(){
   pickAvIdx=0;
   var avs='';
   for(var i=0;i<AVATARS.length;i++){ avs += '<div class="av-opt'+(i===0?' on':'')+'" data-i="'+i+'" onclick="pickAv('+i+')">'+avatarSVG(i)+'</div>'; }
-  showModal('<h2>¡Bienvenida a Matex!</h2><p>Una aventura para dominar las tablas, las sumas y las restas. ¿Cómo te llamas?</p>'
+  showModal('<h2>¡Bienvenido a Matex!</h2><p>Una aventura para dominar las tablas, las sumas y las restas. ¿Cómo te llamas?</p>'
     + '<input class="name-input" id="nameInput" maxlength="14" placeholder="Escribe tu nombre">'
     + '<p style="margin:0 0 8px">Elige tu personaje:</p>'
     + '<div class="av-pick" id="avPick">'+avs+'</div>'
