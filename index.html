@@ -908,7 +908,7 @@ function hintWhat(c){
   if(cu.kind==="resta"){
     var m=cu.topEff[p], b=(p<cu.bLen?cu.bs[cu.n-1-p]:0);
     if(cu.borrowed[p]) return "Ahora tienes "+(m+10)+", quítale "+b+".";
-    if(b===0) return "Baja el "+m+".";
+    if(b===0) return "Baja esa misma cifra.";
     return "A "+m+" quítale "+b+".";
   }
   var ad=(p<cu.aLen?cu.as[cu.n-1-p]:null), bd=(p<cu.bLen?cu.bs[cu.n-1-p]:null), ci=cu.carries[p];
@@ -929,18 +929,17 @@ function updateCuHint(){
 function hintFor(c){
   var cu=QUIZ.cu, p=c.pos;
   if(cu.kind==="resta"){
-    if(c.kind==="carry"){ var top=cu.as[cu.n-1-p]; return "El "+top+" se queda en "+c.exp+": escribe "+c.exp+"."; }
-    var m=cu.topEff[p], b=(p<cu.bLen?cu.bs[cu.n-1-p]:0), rr=cu.res[p];
-    if(cu.borrowed[p]) return (m+10)+" − "+b+" = "+rr+", escribe "+rr+".";
-    if(b===0) return "Baja el "+m+": escribe "+m+".";
-    return m+" − "+b+" = "+rr+", escribe "+rr+".";
+    if(c.kind==="carry"){ var top=cu.as[cu.n-1-p]; return "Qu\u00edtale 1 al "+top+" y pon ese n\u00famero arriba \u2191."; }
+    var m=cu.topEff[p], b=(p<cu.bLen?cu.bs[cu.n-1-p]:0);
+    if(cu.borrowed[p]) return "Pediste una decena: ahora tienes "+(m+10)+". Haz "+(m+10)+" \u2212 "+b+" y pon el resultado.";
+    if(b===0) return "Baja esa misma cifra y ponla.";
+    return "Haz "+m+" \u2212 "+b+" y pon el resultado.";
   }
-  if(c.kind==="carry") return "Te llevas "+c.exp+" a la siguiente columna.";
-  if(c.pos===cu.n) return "Baja la llevada: escribe "+c.exp+".";
+  if(c.kind==="carry") return "Te llevas 1: ponlo arriba \u2191.";
+  if(c.pos===cu.n) return "Baja la \u00faltima llevada y ponla.";
   var ad=(p<cu.aLen?cu.as[cu.n-1-p]:null), bd=(p<cu.bLen?cu.bs[cu.n-1-p]:null), ci=cu.carries[p];
   var nums=[]; if(ad!==null) nums.push(""+ad); if(bd!==null) nums.push(""+bd); if(ci>0) nums.push(ci+" que llevabas");
-  var s=(ad||0)+(bd||0)+ci;
-  return nums.join(" + ")+" = "+s+", escribe "+(s%10)+".";
+  return "Suma "+nums.join(" + ")+" y pon el resultado.";
 }
 function hintSoft(c){
   var cu=QUIZ.cu;
@@ -949,7 +948,7 @@ function hintSoft(c){
 }
 function cuHint(c){
   var diff = QUIZ.diff || "facil", m = QUIZ.cu.curMiss;
-  if(diff==="facil")  return hintFor(c);   // ya ve la explicación al entrar; al fallar, el resultado
+  if(diff==="facil")  return hintWhat(c);  // fácil: solo la explicadita, nunca el resultado
   if(diff==="medio")  return (m===1) ? hintSoft(c) : (m===2) ? hintWhat(c) : hintFor(c);
   return (m<=2) ? hintSoft(c) : (m===3) ? hintWhat(c) : hintFor(c);
 }
