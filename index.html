@@ -305,7 +305,7 @@ function defaultData(){
     name: "",
     avatar: 0,
     onboarded: false,
-    prefs: { stepByStep:true },
+    prefs: { stepSuma:true, stepResta:true },
     stars: { mult:{}, suma:{}, resta:{} },     // mult: por tabla 1..10 ; suma/resta: por dificultad
     stats: {
       totalAnswered:0, totalCorrect:0, bestStreak:0, sessions:0, days:0, lastDay:"", todayCount:0,
@@ -626,12 +626,13 @@ function selSuma(){ renderDiffSelect("suma","Sumas con llevadas","var(--green)",
 function selResta(){ renderDiffSelect("resta","Restas con llevadas","var(--orange)",
   ["2 cifras − 1 cifra","2 cifras − 2 cifras","3 cifras − 3 cifras"]); }
 
-var _stepCtx=null;
-function setStep(v){ if(!DATA.prefs) DATA.prefs={}; DATA.prefs.stepByStep=v; saveData(); if(_stepCtx) _stepCtx(); }
+var _stepCtx=null, _stepTopic="suma";
+function setStep(v){ if(!DATA.prefs) DATA.prefs={}; DATA.prefs[_stepTopic==="suma"?"stepSuma":"stepResta"]=v; saveData(); if(_stepCtx) _stepCtx(); }
 function renderDiffSelect(topic, title, color, descs){
   _stepCtx = function(){ renderDiffSelect(topic, title, color, descs); };
+  _stepTopic = topic;
   var keys=["facil","medio","dificil"], labels=["Fácil","Medio","Difícil"], cls=["facil","medio","dificil"];
-  var step = (DATA.prefs ? DATA.prefs.stepByStep : true);
+  var step = (!DATA.prefs) || (DATA.prefs[topic==="suma"?"stepSuma":"stepResta"]!==false);
   var html = backBar(title)
    + '<div class="panel block"><h2>'+title+'</h2>'
    + '<div class="seg"><div class="seg-btn'+(step?' on':'')+'" onclick="setStep(true)">Paso a paso</div>'
@@ -686,7 +687,7 @@ function startQuiz(topic, key, label, isExam, diffForExam){
     diff: diffForExam || (topic==="mult"?null:key),
     questions: qs, index:0, correct:0, count: qs.length,
     input:"", answered:false, streak:0,
-    cuaderno: ((topic==="suma" || topic==="resta") && (DATA.prefs ? DATA.prefs.stepByStep : true)), showHelp: !isExam, problemMistake:false, wrong:[]
+    cuaderno: ((topic==="suma" && (DATA.prefs ? DATA.prefs.stepSuma!==false : true)) || (topic==="resta" && (DATA.prefs ? DATA.prefs.stepResta!==false : true))), showHelp: !isExam, problemMistake:false, wrong:[]
   };
   renderQuiz();
   window.scrollTo(0,0);
