@@ -188,13 +188,13 @@ body{
 .cu-op{height:42px; display:flex; align-items:center; justify-content:center; font-family:var(--pixel); font-weight:700; font-size:26px; color:var(--orange-d);}
 .cu-carry{height:26px; display:flex; align-items:center; justify-content:center;}
 .cu-line{grid-column:1 / -1; height:5px; background:var(--line); border-radius:3px; margin:4px 0;}
-.cu-cell{display:flex; align-items:center; justify-content:center; font-family:var(--pixel); font-weight:700; border-radius:8px; transition:box-shadow .1s, background .1s;}
+.cu-cell{display:flex; align-items:center; justify-content:center; font-family:var(--pixel); font-weight:700; border-radius:8px; cursor:pointer; transition:box-shadow .1s, background .1s;}
 .cu-carrybox{width:24px; height:24px; font-size:15px; border:2px dashed var(--orange-d); color:var(--orange-d); background:#fff8ec;}
 .cu-resbox{width:42px; height:46px; font-size:28px; border:3px solid var(--line); background:var(--panel-2); color:var(--ink);}
 .cu-cell.active{box-shadow:0 0 0 4px rgba(61,155,255,.45); border-color:var(--blue);}
 .cu-cell.ok{background:#d7ffe6; border-color:var(--green); color:var(--green-d);}
 .cu-cell.bad{animation:flashno .42s; border-color:var(--red); color:var(--red-d);}
-.cu-carrybox.active{border-color:var(--orange-d); animation:cuPulse .8s ease-in-out infinite;}
+.cu-carrybox.active{border-color:var(--orange-d); box-shadow:0 0 0 4px rgba(255,159,67,.5);}
 @keyframes cuPulse{0%,100%{box-shadow:0 0 0 3px rgba(255,159,67,.6); transform:scale(1);} 50%{box-shadow:0 0 0 7px rgba(255,159,67,.32); transform:scale(1.2);}}
 .cu-hint.cu-hint-carry{display:inline-block; background:#fff1dc; border:2px solid var(--orange-d); border-radius:10px; padding:7px 12px; color:#9a5a00;}
 .cu-struck{color:#9aa0b8; text-decoration:line-through; text-decoration-color:#ff5d6c; text-decoration-thickness:3px;}
@@ -859,6 +859,7 @@ function cuadernoBuild(q){
     if(finalCarry>0) cells.push({kind:"res", pos:n, exp:res[n]});
     topPos = finalCarry>0 ? n : n-1;
   }
+  for(var _d=0;_d<cells.length;_d++) cells[_d].done=false;
   var cols=[]; for(var c=topPos;c>=0;c--) cols.push(c);
   return {kind:q.kind, op:(q.kind==="resta"?"−":"+"), a:q.a, b:q.b, as:as, bs:bs, n:n,
           aLen:aLen, bLen:bLen, carries:carries, res:res, finalCarry:finalCarry,
@@ -868,7 +869,7 @@ function cuadernoBuild(q){
 function renderCuaderno(){
   var cu=QUIZ.cu, P=cu.cols, C=P.length, h='', k;
   function carryCell(p){
-    if(cu.boxAt && cu.boxAt[p]) return '<div class="cu-carry"><div class="cu-cell cu-carrybox" id="cy'+p+'"></div></div>';
+    if(cu.boxAt && cu.boxAt[p]) return '<div class="cu-carry"><div class="cu-cell cu-carrybox" id="cy'+p+'" onclick="cuSelect(\'cy\','+p+')"></div></div>';
     return '<div class="cu-carry"></div>';
   }
   h+='<div class="cu-grid" style="grid-template-columns:30px repeat('+C+',42px) 30px">';
@@ -889,7 +890,7 @@ function renderCuaderno(){
   h+='<div class="cu-line"></div>';
   // fila resultado
   h+='<div></div>';
-  for(k=0;k<C;k++){ var pr=P[k]; h+='<div class="cu-cell cu-resbox" id="rs'+pr+'"></div>'; }
+  for(k=0;k<C;k++){ var pr=P[k]; h+='<div class="cu-cell cu-resbox" id="rs'+pr+'" onclick="cuSelect(\'rs\','+pr+')"></div>'; }
   h+='<div></div>';
   h+='</div>';
   return h;
@@ -956,18 +957,27 @@ function showCuHint(t){
   var el=document.getElementById('cuHint'); if(!el) return;
   el.textContent=t; el.classList.add('cu-hint-warn');
 }
+function cuNextUnfilled(){ var cs=QUIZ.cu.cells; for(var i=0;i<cs.length;i++){ if(!cs[i].done) return i; } return -1; }
+function cuAllDone(){ var cs=QUIZ.cu.cells; for(var i=0;i<cs.length;i++){ if(!cs[i].done) return false; } return true; }
+function cuCellIndex(kind,pos){ var cs=QUIZ.cu.cells; for(var i=0;i<cs.length;i++){ if(cs[i].kind===kind && cs[i].pos===pos) return i; } return -1; }
+function cuSelect(prefix,pos){
+  if(!QUIZ || !QUIZ.cuaderno || QUIZ.answered) return;
+  var i=cuCellIndex(prefix==="cy"?"carry":"res", pos);
+  if(i<0 || QUIZ.cu.cells[i].done) return;
+  QUIZ.cu.idx=i; QUIZ.cu.curMiss=0; setActiveCell(); if(QUIZ.showHelp) updateCuHint();
+}
 function cuadernoPress(d){
   var cu=QUIZ.cu; if(QUIZ.answered) return;
+  if(!cu.cells[cu.idx] || cu.cells[cu.idx].done){ var nx0=cuNextUnfilled(); if(nx0<0) return; cu.idx=nx0; setActiveCell(); }
   var c=cu.cells[cu.idx], box=cellBox(c);
   if(parseInt(d,10)===c.exp){
-    box.textContent=d; box.classList.remove('active','bad'); box.classList.add('ok');
+    box.textContent=d; box.classList.remove('active','bad'); box.classList.add('ok'); c.done=true; cu.curMiss=0;
     if(c.kind==="carry" && cu.kind==="resta"){ var _td=document.getElementById('td'+c.pos); if(_td) _td.classList.add('cu-struck'); }
-    cu.idx++; cu.curMiss=0;
-    if(cu.idx>=cu.cells.length) finalizeCuaderno();
-    else { setActiveCell(); if(QUIZ.showHelp) updateCuHint(); }
+    if(cuAllDone()){ finalizeCuaderno(); return; }
+    var nx=cuNextUnfilled(); if(nx>=0){ cu.idx=nx; setActiveCell(); if(QUIZ.showHelp) updateCuHint(); }
   } else {
     cu.mistakes++; cu.curMiss=(cu.curMiss||0)+1; QUIZ.problemMistake=true;
-    box.textContent=d; box.classList.remove('ok'); box.classList.add('bad');   // muestra en rojo lo que escribió
+    box.textContent=d; box.classList.remove('ok'); box.classList.add('bad');
     (function(bx){ setTimeout(function(){ if(bx.classList.contains('bad')){ bx.classList.remove('bad'); bx.textContent=''; } }, 650); })(box);
     if(QUIZ.showHelp) showCuHint(cuHint(c));
   }
