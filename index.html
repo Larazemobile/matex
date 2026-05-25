@@ -878,8 +878,7 @@ function renderCuaderno(){
   h+='<div></div>';
   for(k=0;k<C;k++){
     var pa=P[k], dig=(pa<cu.aLen?cu.as[cu.n-1-pa]:'');
-    var cls='cu-d'+((cu.kind==="resta" && cu.struck && cu.struck[pa])?' cu-struck':'');
-    h+='<div class="'+cls+'">'+dig+'</div>';
+    h+='<div class="cu-d" id="td'+pa+'">'+dig+'</div>';
   }
   h+='<div></div>';
   // fila B con operador
@@ -917,9 +916,15 @@ function hintWhat(c){
   return "Suma "+nums.join(" + ");
 }
 function updateCuHint(){
-  var el=document.getElementById('cuHint'); if(!el) return;
+  var cu=QUIZ.cu, el=document.getElementById('cuHint'); if(!el || cu.idx>=cu.cells.length) return;
   el.classList.remove('cu-hint-warn','cu-hint-carry');
-  el.textContent="";   // al entrar no damos pista: primero solo la operación
+  if((QUIZ.diff||"facil")==="facil"){
+    var c=cu.cells[cu.idx];
+    if(c.kind==="carry") el.classList.add('cu-hint-carry');
+    el.textContent = hintWhat(c);          // fácil: pista desde el principio
+  } else {
+    el.textContent="";                      // medio/difícil: sin pista al entrar
+  }
 }
 function hintFor(c){
   var cu=QUIZ.cu, p=c.pos;
@@ -944,7 +949,7 @@ function hintSoft(c){
 }
 function cuHint(c){
   var diff = QUIZ.diff || "facil", m = QUIZ.cu.curMiss;
-  if(diff==="facil")  return hintWhat(c);                 // pistas buenas siempre, sin dar el resultado
+  if(diff==="facil")  return hintFor(c);   // ya ve la explicación al entrar; al fallar, el resultado
   if(diff==="medio")  return (m===1) ? hintSoft(c) : (m===2) ? hintWhat(c) : hintFor(c);
   return (m<=2) ? hintSoft(c) : (m===3) ? hintWhat(c) : hintFor(c);
 }
@@ -957,6 +962,7 @@ function cuadernoPress(d){
   var c=cu.cells[cu.idx], box=cellBox(c);
   if(parseInt(d,10)===c.exp){
     box.textContent=d; box.classList.remove('active','bad'); box.classList.add('ok');
+    if(c.kind==="carry" && cu.kind==="resta"){ var _td=document.getElementById('td'+c.pos); if(_td) _td.classList.add('cu-struck'); }
     cu.idx++; cu.curMiss=0;
     if(cu.idx>=cu.cells.length) finalizeCuaderno();
     else { setActiveCell(); if(QUIZ.showHelp) updateCuHint(); }
