@@ -242,7 +242,9 @@ body{
 .modal h2{margin:0 0 6px; font-family:var(--pixel); font-size:16px;}
 .modal p{margin:0 0 14px; font-weight:700; color:var(--ink-soft);}
 .name-input{width:100%; font-family:var(--body); font-size:18px; font-weight:800; padding:12px; border:3px solid var(--line); border-radius:10px; margin-bottom:14px;}
-.av-pick{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px;}
+.av-pick{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; max-height:46vh; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:2px;}
+.pick-go{position:sticky; bottom:0; background:#fff; padding-top:12px; display:flex; justify-content:center;}
+.pick-go .btn{font-size:18px; padding:14px 36px; width:100%; max-width:320px;}
 .av-opt{border:3px solid var(--line); border-radius:12px; padding:6px; cursor:pointer; background:var(--panel-2);}
 .av-opt.on{border-color:var(--blue); box-shadow:0 0 0 3px rgba(61,155,255,.4);}
 .av-opt svg{width:100%; height:auto; display:block;}
@@ -305,7 +307,7 @@ h2.wtitle b{color:var(--gold);}
         <div class="av" id="chipAv"></div>
         <div class="who">
           <span class="nm" id="chipName">Jugador</span>
-          <span class="md"><svg width="14" height="14" viewBox="0 0 24 24"><circle cx="12" cy="10" r="7" fill="#ffcf3f" stroke="#23263d" stroke-width="2"/><text x="12" y="14" font-size="9" text-anchor="middle" fill="#23263d" font-family="Arial" font-weight="bold">★</text></svg><span id="chipMedals">0</span> medallas</span>
+          <span class="md"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="#ffcf3f" stroke="#e0a51e" stroke-width="1.6"/><polygon points="12,6.2 13.5,9.9 17.6,10.1 14.3,12.7 15.5,16.7 12,14.5 8.5,16.7 9.7,12.7 6.4,10.1 10.5,9.9" fill="#fff"/></svg><span id="chipMedals">0</span> medallas</span>
         </div>
       </div>
     </div>
@@ -313,7 +315,7 @@ h2.wtitle b{color:var(--gold);}
 
   <div id="screen"></div>
 
-  <div class="footer-note">Una app de <b>ÓrbitaKidx</b><br><span style="font-size:11px">¿Tienes algo que decirnos? Escríbenos a <a href="mailto:orbitakidx@gmail.com" style="color:var(--blue-d);font-weight:700">orbitakidx@gmail.com</a></span></div>
+  <div class="footer-note"><span style="display:inline-block;background:#fff;border:2px solid #e7e9f3;border-radius:999px;padding:5px 14px;color:#3a3f63;font-size:12px">🪐 Descubre el resto del <b>universo ÓrbitaKidx</b> · ¡sigue jugando y aprendiendo!</span><br><br>Una app de <b>ÓrbitaKidx</b><br><span style="font-size:11px">¿Tienes algo que decirnos? Escríbenos a <a href="mailto:orbitakidx@gmail.com" style="color:var(--blue-d);font-weight:700">orbitakidx@gmail.com</a></span></div>
 </div>
 
 <div id="modalHost"></div>
@@ -1207,7 +1209,7 @@ function pickAv(i){
   pickAvIdx=i; sfx('tap');
   var opts=document.querySelectorAll('#avPick .av-opt');
   for(var k=0;k<opts.length;k++){ opts[k].classList.toggle('on', parseInt(opts[k].getAttribute('data-i'),10)===i); }
-  var m=document.querySelector('.modal'); if(m){ try{ m.scrollTo({top:m.scrollHeight, behavior:'smooth'}); }catch(e){ m.scrollTop=m.scrollHeight; } }
+  /* el botón ¡A jugar! queda fijo abajo; sin auto-scroll */
 }
 function saveProfile(){
   var inp=$("nameInput");
@@ -1281,7 +1283,7 @@ function wStep(n){
     for(var i=0;i<AVATARS.length;i++){ avs += '<div class="av-opt'+(i===0?' on':'')+'" data-i="'+i+'" onclick="pickAv('+i+')">'+avatarSVG(i)+'</div>'; }
     showModal('<h2>Elige tu personaje</h2><p>Será tu compañero en el juego.</p>'
       + '<div class="av-pick" id="avPick">'+avs+'</div>'
-      + '<div class="result-actions"><div class="btn gold" onclick="saveProfile()">¡A jugar!</div></div>', true);
+      + '<div class="pick-go"><div class="btn gold" onclick="saveProfile()">¡A jugar! ▶</div></div>', true);
   }
 }
 function wName(){ var i=document.getElementById('nameInput'); WNAME=(i&&i.value.trim())||"Jugador"; sfx('tap'); wStep(2); }
