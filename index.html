@@ -384,6 +384,7 @@ function iconPath(name){
     case "infinity": return '<path d="M7 12a3 3 0 1 1 3 3c-2 0-3-3-3-3s-1-3-3-3a3 3 0 1 0 0 6" fill="none" stroke="currentColor" stroke-width="3"/><path d="M17 12a3 3 0 1 0-3 3c2 0 3-3 3-3" fill="none" stroke="currentColor" stroke-width="3"/>';
     case "brain":  return '<circle cx="9" cy="10" r="5"/><circle cx="15" cy="10" r="5"/><rect x="6" y="10" width="12" height="8" rx="3"/>';
     case "book":   return '<path d="M4 4h7v16H4z"/><path d="M13 4h7v16h-7z"/>';
+    case "sun":    return '<circle cx="12" cy="12" r="4.5"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.8" y1="4.8" x2="6.6" y2="6.6"/><line x1="17.4" y1="17.4" x2="19.2" y2="19.2"/><line x1="19.2" y1="4.8" x2="17.4" y2="6.6"/><line x1="6.6" y1="17.4" x2="4.8" y2="19.2"/></g>';
     default:       return '<circle cx="12" cy="12" r="9"/>';
   }
 }
@@ -431,7 +432,9 @@ var ACHIEVEMENTS = [
   {id:"coleccionista", name:"Coleccionista", desc:"Consigue 8 medallas", tier:"gold", icon:"star",
     cond:function(){ return unlockedCount()>=8; }},
   {id:"maraton", name:"Maratón mental", desc:"Responde 200 ejercicios", tier:"silver", icon:"infinity",
-    cond:function(){ return DATA.stats.totalAnswered>=200; }}
+    cond:function(){ return DATA.stats.totalAnswered>=200; }},
+  {id:"constante", name:"Constante", desc:"Practica 5 días distintos", tier:"silver", icon:"sun",
+    cond:function(){ return (DATA.stats.days||0)>=5; }}
 ];
 function tablesWithStars(min){ var c=0; for(var t=1;t<=10;t++){ if((DATA.stars.mult[t]||0)>=min) c++; } return c; }
 function unlockedCount(){ var c=0; for(var k in DATA.achievements){ if(DATA.achievements[k]) c++; } return c; }
