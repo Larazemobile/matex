@@ -44,7 +44,7 @@ body{
   overflow-x:hidden;
 }
 /* fondo limpio: sin franja de hierba */
-.app-wrap{position:relative; z-index:1; max-width:920px; margin:0 auto; padding:14px 14px 70px;}
+.app-wrap{position:relative; z-index:1; max-width:920px; margin:0 auto; padding:14px 14px 28px;}
 
 /* ====================== SHARED BLOCKY LOOK ====================== */
 .pixel{font-family:var(--pixel); letter-spacing:.2px; line-height:1.5;}
@@ -267,6 +267,19 @@ body{
 h2.wtitle{font-size:30px; margin:0;}
 h2.wtitle b{color:var(--gold);}
 .wsub{color:var(--ink-soft); font-weight:700; margin:2px 0 18px;}
+@media (max-width:480px){
+  .app-wrap{padding:10px 10px 22px;}
+  .qcard{padding:16px 12px;}
+  .quiz-head{margin-bottom:8px;}
+  .progress{height:14px; margin-bottom:10px;}
+  .mult-q{font-size:38px; margin:6px 0 4px;}
+  .answer-display{font-size:26px; min-height:46px; padding:8px;}
+  .keypad{gap:8px; max-width:300px; margin:4px auto 0;}
+  .key{font-size:18px; padding:12px 0;}
+  .key.ok{font-size:14px;}
+  .vsum{font-size:30px;}
+  .feedback{min-height:20px; margin:6px 0 2px; font-size:15px;}
+}
 </style>
 </head>
 <body>
@@ -715,6 +728,7 @@ function startQuiz(topic, key, label, isExam, diffForExam){
 
 function renderQuiz(){
   var q = QUIZ.questions[QUIZ.index];
+  QUIZ.cuaderno = ((q.kind==="suma" && (DATA.prefs?DATA.prefs.stepSuma!==false:true)) || (q.kind==="resta" && (DATA.prefs?DATA.prefs.stepResta!==false:true)));
   var pct = Math.round((QUIZ.index)/QUIZ.count*100);
   var inner;
   if(QUIZ.cuaderno){
