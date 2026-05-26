@@ -258,6 +258,15 @@ body{
 .confetti{position:fixed; top:-10px; width:10px; height:14px; z-index:40; pointer-events:none;}
 .hidden{display:none !important;}
 .footer-note{text-align:center; color:rgba(32,35,58,.6); font-weight:700; font-size:12px; margin-top:18px;}
+.topright{display:flex; align-items:center; gap:10px;}
+.sound-btn{width:44px; height:44px; display:flex; align-items:center; justify-content:center; background:#fff; cursor:pointer; padding:0;}
+.wintro{text-align:center; padding:6px 2px;}
+.wglobe{width:120px; height:120px; margin:6px auto 12px; animation:wfloat 3s ease-in-out infinite;}
+.wglobe.sm{width:72px; height:72px; margin:4px auto 8px;}
+@keyframes wfloat{0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)}}
+h2.wtitle{font-size:30px; margin:0;}
+h2.wtitle b{color:var(--gold);}
+.wsub{color:var(--ink-soft); font-weight:700; margin:2px 0 18px;}
 </style>
 </head>
 <body>
@@ -277,18 +286,21 @@ body{
       </svg>
       <h1>Mate<b>x</b>App</h1>
     </div>
-    <div class="profile-chip block" onclick="openProfile()">
-      <div class="av" id="chipAv"></div>
-      <div class="who">
-        <span class="nm" id="chipName">Jugador</span>
-        <span class="md"><svg width="14" height="14" viewBox="0 0 24 24"><circle cx="12" cy="10" r="7" fill="#ffcf3f" stroke="#23263d" stroke-width="2"/><text x="12" y="14" font-size="9" text-anchor="middle" fill="#23263d" font-family="Arial" font-weight="bold">★</text></svg><span id="chipMedals">0</span> medallas</span>
+    <div class="topright">
+      <div class="sound-btn block" id="soundBtn" onclick="toggleSound()" title="Sonido"></div>
+      <div class="profile-chip block" onclick="openProfile()">
+        <div class="av" id="chipAv"></div>
+        <div class="who">
+          <span class="nm" id="chipName">Jugador</span>
+          <span class="md"><svg width="14" height="14" viewBox="0 0 24 24"><circle cx="12" cy="10" r="7" fill="#ffcf3f" stroke="#23263d" stroke-width="2"/><text x="12" y="14" font-size="9" text-anchor="middle" fill="#23263d" font-family="Arial" font-weight="bold">★</text></svg><span id="chipMedals">0</span> medallas</span>
+        </div>
       </div>
     </div>
   </div>
 
   <div id="screen"></div>
 
-  <div class="footer-note">Una app de <b>ÓrbitaKidx</b> · Tu progreso solo se guardará si no borras caché ni cookies.</div>
+  <div class="footer-note">Una app de <b>ÓrbitaKidx</b><br><span style="font-size:11px">¿Tienes algo que decirnos? Escríbenos a <a href="mailto:orbitakidx@gmail.com" style="color:var(--blue-d);font-weight:700">orbitakidx@gmail.com</a></span></div>
 </div>
 
 <div id="modalHost"></div>
@@ -310,7 +322,7 @@ function defaultData(){
     name: "",
     avatar: 0,
     onboarded: false,
-    prefs: { stepSuma:true, stepResta:true },
+    prefs: { stepSuma:true, stepResta:true, sound:true },
     stars: { mult:{}, suma:{}, resta:{} },     // mult: por tabla 1..10 ; suma/resta: por dificultad
     stats: {
       totalAnswered:0, totalCorrect:0, bestStreak:0, sessions:0, days:0, lastDay:"", todayCount:0,
@@ -600,7 +612,7 @@ var TIPS={
 4:"Es doblar dos veces (×2 y otra vez ×2). Siempre sale par.",
 5:"Siempre acaba en 0 o en 5. Es la mitad de la tabla del 10.",
 6:"Con números pares, el resultado acaba en ese mismo número: 6×4=24, 6×8=48.",
-7:"La más traviesa. Truco: 7×n = (5×n)+(2×n). Ejemplo: 7×6 = 30+12 = 42.",
+7:"La más traviesa: 7×n = (5×n)+(2×n). Ejemplo: 7×6 = 30+12 = 42.",
 8:"Es doblar tres veces: ×2, ×2 y ×2. Siempre sale par.",
 9:"Las dos cifras del resultado suman 9: 9×3=27 → 2+7=9. ¡Compruébalo!",
 10:"Solo tienes que añadir un 0 al final. ¡La más fácil de todas!"
@@ -642,7 +654,7 @@ function renderDiffSelect(topic, title, color, descs){
   var keys=["facil","medio","dificil"], labels=["Fácil","Medio","Difícil"], cls=["facil","medio","dificil"];
   var step = (!DATA.prefs) || (DATA.prefs[topic==="suma"?"stepSuma":"stepResta"]!==false);
   var html = backBar(title)
-   + '<div class="panel block"><h2>'+title+'</h2>'
+   + '<div class="panel block"><h2>¿Cómo practicar?</h2>'
    + '<div class="seg"><div class="seg-btn'+(step?' on':'')+'" onclick="setStep(true)">Paso a paso</div>'
    +   '<div class="seg-btn'+(step?'':' on')+'" onclick="setStep(false)">Solo el resultado</div></div>'
    + '<p class="sub">'+(step?'Te guía con las llevadas, como en el cuaderno.':'Escribe la respuesta con el método que prefieras.')+'</p>'
@@ -802,13 +814,13 @@ function submitAnswer(){
   // feedback visual
   var card=$("qcard"); var fb=$("fb");
   if(ok){
-    card.classList.add("flash-ok");
+    card.classList.add("flash-ok"); sfx('ok');
     fb.className="feedback ok"; fb.textContent = pick(["¡Genial!","¡Correcto!","¡Bien hecho!","¡Eres crack!","¡Sigue así!"]);
     if(q.kind!=="mult"){ var r=$("vres"); if(r) r.innerHTML=String(q.answer); }
     checkAchievements();
     setTimeout(nextQuestion, 750);
   } else {
-    card.classList.add("flash-no");
+    card.classList.add("flash-no"); sfx('bad');
     fb.className="feedback no"; fb.innerHTML = "La respuesta era <b>"+q.answer+"</b>";
     if(q.kind!=="mult"){ var r2=$("vres"); if(r2) r2.innerHTML=String(q.answer); }
     else { var d=$("ansDisp"); if(d){ d.textContent=q.answer; d.classList.remove("empty"); } }
@@ -979,13 +991,13 @@ function cuadernoPress(d){
   if(!cu.cells[cu.idx] || cu.cells[cu.idx].done){ var nx0=cuNextUnfilled(); if(nx0<0) return; cu.idx=nx0; setActiveCell(); }
   var c=cu.cells[cu.idx], box=cellBox(c);
   if(parseInt(d,10)===c.exp){
-    box.textContent=d; box.classList.remove('active','bad'); box.classList.add('ok'); c.done=true; cu.curMiss=0;
+    box.textContent=d; box.classList.remove('active','bad'); box.classList.add('ok'); sfx('ok'); c.done=true; cu.curMiss=0;
     if(c.kind==="carry" && cu.kind==="resta"){ var _td=document.getElementById('td'+c.pos); if(_td) _td.classList.add('cu-struck'); }
     if(cuAllDone()){ finalizeCuaderno(); return; }
     var nx=cuNextUnfilled(); if(nx>=0){ cu.idx=nx; setActiveCell(); if(QUIZ.showHelp) updateCuHint(); }
   } else {
     cu.mistakes++; cu.curMiss=(cu.curMiss||0)+1; QUIZ.problemMistake=true;
-    box.textContent=d; box.classList.remove('ok'); box.classList.add('bad');
+    box.textContent=d; box.classList.remove('ok'); box.classList.add('bad'); sfx('bad');
     (function(bx){ setTimeout(function(){ if(bx.classList.contains('bad')){ bx.classList.remove('bad'); bx.textContent=''; } }, 650); })(box);
     if(QUIZ.showHelp) showCuHint(cuHint(c));
   }
@@ -1040,6 +1052,7 @@ function fmtQ(q){
   return q.a+" "+op+" "+q.b+" = "+q.answer;
 }
 function renderResults(score,total,stars,newly){
+  sfx(score>=total?'win':'ok');
   var msgs=[
     "¡Lo has dado todo! 💪",
     "¡Cada vez mejor!",
@@ -1177,30 +1190,87 @@ function openProfile(){
     + '<div class="btn ghost" onclick="closeModal()">Cancelar</div></div>');
 }
 function pickAv(i){
-  pickAvIdx=i;
+  pickAvIdx=i; sfx('tap');
   var opts=document.querySelectorAll('#avPick .av-opt');
   for(var k=0;k<opts.length;k++){ opts[k].classList.toggle('on', parseInt(opts[k].getAttribute('data-i'),10)===i); }
   var m=document.querySelector('.modal'); if(m){ try{ m.scrollTo({top:m.scrollHeight, behavior:'smooth'}); }catch(e){ m.scrollTop=m.scrollHeight; } }
 }
 function saveProfile(){
-  var n=$("nameInput").value.trim();
+  var inp=$("nameInput");
+  var n = inp ? inp.value.trim() : (WNAME||"");
   DATA.name = n || "Jugador";
   DATA.avatar = pickAvIdx;
   DATA.onboarded = true;
-  saveData(); refreshChip(); closeModal(); renderHome();
+  saveData(); refreshChip(); closeModal(); renderHome(); sfx('win');
 }
 
-/* ---------- onboarding ---------- */
-function welcome(){
-  pickAvIdx=0;
-  var avs='';
-  for(var i=0;i<AVATARS.length;i++){ avs += '<div class="av-opt'+(i===0?' on':'')+'" data-i="'+i+'" onclick="pickAv('+i+')">'+avatarSVG(i)+'</div>'; }
-  showModal('<h2>¡Bienvenido a MatexApp!</h2><p>Un juego para dominar las tablas, las sumas y las restas. ¿Cómo te llamas?</p>'
-    + '<input class="name-input" id="nameInput" maxlength="14" placeholder="Escribe tu nombre">'
-    + '<p style="margin:0 0 8px">Elige tu personaje:</p>'
-    + '<div class="av-pick" id="avPick">'+avs+'</div>'
-    + '<div class="result-actions"><div class="btn gold" onclick="saveProfile()">¡Empezar a jugar!</div></div>', true);
+/* ---------- sonidos arcade (sin música) ---------- */
+var SND={ctx:null};
+function soundOn(){ return !DATA.prefs || DATA.prefs.sound!==false; }
+function updateSoundBtn(){
+  var b=document.getElementById('soundBtn'); if(!b) return; var on=soundOn();
+  b.innerHTML = on
+    ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="#23263d"><path d="M4 9v6h4l5 5V4L8 9H4z"/><path d="M16.5 8.5a4 4 0 010 7" fill="none" stroke="#23263d" stroke-width="2"/></svg>'
+    : '<svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="#aab0c4"/><line x1="16" y1="9.5" x2="22" y2="14.5" stroke="#aab0c4" stroke-width="2"/><line x1="22" y1="9.5" x2="16" y2="14.5" stroke="#aab0c4" stroke-width="2"/></svg>';
 }
+function toggleSound(){ if(!DATA.prefs) DATA.prefs={}; DATA.prefs.sound=!soundOn(); saveData(); updateSoundBtn(); if(soundOn()) sfx('tap'); }
+function sfx(type){
+  if(!soundOn()) return;
+  try{
+    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    if(!SND.ctx) SND.ctx=new AC();
+    var ctx=SND.ctx; if(ctx.state==='suspended') ctx.resume();
+    var seq, wave='triangle';
+    if(type==='ok'){ seq=[[660,0,.09],[990,.07,.12]]; }
+    else if(type==='bad'){ seq=[[180,0,.22]]; wave='square'; }
+    else if(type==='tap'){ seq=[[540,0,.05]]; }
+    else if(type==='medal'){ seq=[[523,0,.1],[659,.1,.1],[784,.2,.16]]; }
+    else if(type==='win'){ seq=[[523,0,.1],[659,.1,.1],[784,.2,.1],[1047,.32,.2]]; }
+    else if(type==='start'){ seq=[[392,0,.09],[523,.09,.09],[784,.18,.18]]; }
+    else { seq=[[600,0,.08]]; }
+    for(var i=0;i<seq.length;i++){ var n=seq[i];
+      var o=ctx.createOscillator(), g=ctx.createGain();
+      o.type=wave; o.frequency.value=n[0]; o.connect(g); g.connect(ctx.destination);
+      var t0=ctx.currentTime+n[1];
+      g.gain.setValueAtTime(0.0001,t0);
+      g.gain.exponentialRampToValueAtTime(0.22,t0+0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001,t0+n[2]);
+      o.start(t0); o.stop(t0+n[2]+0.03);
+    }
+  }catch(e){}
+}
+function bigGlobeSVG(){
+  return '<svg viewBox="0 0 48 48" style="width:100%;height:100%"><defs><radialGradient id="wg" cx="38%" cy="30%" r="78%"><stop offset="0" stop-color="#a9e4ff"/><stop offset="45%" stop-color="#3aa0ff"/><stop offset="100%" stop-color="#1f56c8"/></radialGradient></defs>'
+    +'<circle cx="24" cy="24" r="20" fill="url(#wg)" stroke="#15172a" stroke-width="3"/>'
+    +'<path d="M13 16 q4 -3 8 -1 q3 2 1 5 q-3 2 -6 1 q-4 -2 -3 -5z" fill="#46c66e" stroke="#2c9a4f" stroke-width="1"/>'
+    +'<path d="M27 26 q6 -1 7 4 q1 4 -3 6 q-5 1 -7 -3 q-1 -4 3 -7z" fill="#46c66e" stroke="#2c9a4f" stroke-width="1"/>'
+    +'<path d="M13 31 q3 -1 5 2 q1 3 -3 3 q-4 0 -2 -5z" fill="#46c66e" stroke="#2c9a4f" stroke-width="1"/>'
+    +'<ellipse cx="17" cy="15" rx="7" ry="4.4" fill="#ffffff" opacity="0.42" transform="rotate(-25 17 15)"/>'
+    +'<path d="M34 11 l1.2 3 l3 1.2 l-3 1.2 l-1.2 3 l-1.2 -3 l-3 -1.2 l3 -1.2z" fill="#ffffff" opacity="0.92"/></svg>';
+}
+/* ---------- onboarding (arcade, 2 pasos) ---------- */
+var WNAME="";
+function welcome(){ WNAME=""; wStep(0); }
+function wStep(n){
+  if(n===0){
+    showModal('<div class="wintro"><div class="wglobe">'+bigGlobeSVG()+'</div>'
+      + '<h2 class="wtitle">Mate<b>x</b>App</h2><p class="wsub">Juego de matemáticas</p>'
+      + '<div class="btn gold" onclick="sfx(\'start\');wStep(1)">¡EMPEZAR!</div></div>', true);
+  } else if(n===1){
+    showModal('<div class="wintro"><div class="wglobe sm">'+bigGlobeSVG()+'</div>'
+      + '<h2>¿Cómo te llamas?</h2>'
+      + '<input class="name-input" id="nameInput" maxlength="14" placeholder="Tu nombre" value="'+escapeHtml(WNAME)+'">'
+      + '<div class="result-actions"><div class="btn green" onclick="wName()">Siguiente</div></div></div>', true);
+    setTimeout(function(){ var i=document.getElementById('nameInput'); if(i) i.focus(); }, 60);
+  } else {
+    pickAvIdx=0; var avs='';
+    for(var i=0;i<AVATARS.length;i++){ avs += '<div class="av-opt'+(i===0?' on':'')+'" data-i="'+i+'" onclick="pickAv('+i+')">'+avatarSVG(i)+'</div>'; }
+    showModal('<h2>Elige tu personaje</h2><p>Será tu compañero en el juego.</p>'
+      + '<div class="av-pick" id="avPick">'+avs+'</div>'
+      + '<div class="result-actions"><div class="btn gold" onclick="saveProfile()">¡A jugar!</div></div>', true);
+  }
+}
+function wName(){ var i=document.getElementById('nameInput'); WNAME=(i&&i.value.trim())||"Jugador"; sfx('tap'); wStep(2); }
 
 /* ---------- modal infra ---------- */
 function showModal(inner, noClose){
@@ -1213,6 +1283,7 @@ function closeModal(){ $("modalHost").innerHTML=''; }
 
 /* ---------- toast medallas ---------- */
 function toast(a){
+  sfx('medal');
   var t=document.createElement('div'); t.className='toast';
   t.innerHTML = '<div style="width:34px;height:34px">'+medalSVG(a.tier,a.icon,false)+'</div>'
     + '<div>¡Medalla nueva!<small>'+a.name+'</small></div>';
@@ -1254,6 +1325,7 @@ document.addEventListener('keydown', function(e){
 
 /* ====================== ARRANQUE ====================== */
 refreshChip();
+updateSoundBtn();
 renderHome();
 if(!DATA.onboarded){ welcome(); }
 </script>
