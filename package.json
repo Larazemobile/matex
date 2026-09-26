@@ -1,0 +1,22 @@
+{
+  "name": "matex",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Juego educativo de matemáticas de ÓrbitaKidx",
+  "scripts": {
+    "build:web": "node scripts/build-web.mjs",
+    "android:sync": "npm run build:web && npx cap sync android",
+    "android:assets": "npx capacitor-assets generate --android",
+    "android:bundle": "npm run android:sync && cd android && ./gradlew bundleRelease",
+    "store:assets": "node scripts/generate-store-assets.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.2",
+    "@capacitor/core": "8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "3.0.5",
+    "@capacitor/cli": "8.5.2",
+    "sharp": "0.32.6"
+  }
+}

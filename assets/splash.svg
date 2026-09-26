@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2732 2732">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#72baff"/>
+      <stop offset="0.52" stop-color="#8fa8ff"/>
+      <stop offset="1" stop-color="#d8c6f8"/>
+    </linearGradient>
+    <radialGradient id="globe" cx="35%" cy="28%" r="76%">
+      <stop offset="0" stop-color="#c8f2ff"/>
+      <stop offset="0.45" stop-color="#3aa0ff"/>
+      <stop offset="1" stop-color="#174fbf"/>
+    </radialGradient>
+  </defs>
+  <rect width="2732" height="2732" fill="url(#bg)"/>
+  <circle cx="520" cy="490" r="220" fill="#ffffff" opacity="0.12"/>
+  <circle cx="2260" cy="650" r="135" fill="#ffe897" opacity="0.35"/>
+  <g>
+    <circle cx="1366" cy="1190" r="560" fill="url(#globe)" stroke="#252844" stroke-width="62"/>
+    <path d="M1044 965c126-96 248-66 298 26 42 78-34 151-140 163-126 13-244-68-158-189Z" fill="#50ca74" stroke="#258a46" stroke-width="28"/>
+    <path d="M1460 1268c184-32 295 52 281 190-11 126-140 220-275 144-111-64-137-271-6-334Z" fill="#50ca74" stroke="#258a46" stroke-width="28"/>
+    <path d="M999 1397c96-38 182 11 199 105 15 89-88 134-182 88-79-39-101-160-17-193Z" fill="#50ca74" stroke="#258a46" stroke-width="28"/>
+    <ellipse cx="1155" cy="902" rx="220" ry="118" fill="#ffffff" opacity="0.34" transform="rotate(-22 1155 902)"/>
+  </g>
+  <text x="1366" y="2010" text-anchor="middle" font-family="Arial Rounded MT Bold, Arial, sans-serif" font-weight="900" font-size="300" fill="#252844">Mate<tspan fill="#ffb31a">x</tspan></text>
+  <text x="1366" y="2180" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="72" fill="#3f456c">Juega · Aprende · Supera</text>
+</svg>
