@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Matex</string>
+    <string name="title_activity_main">Matex</string>
+    <string name="package_name">com.orbitakidx.matex</string>
+    <string name="custom_url_scheme">com.orbitakidx.matex</string>
+</resources>

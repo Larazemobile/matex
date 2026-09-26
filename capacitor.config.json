@@ -1,0 +1,14 @@
+{
+  "appId": "com.orbitakidx.matex",
+  "appName": "Matex",
+  "webDir": "www",
+  "backgroundColor": "#8fc1ff",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "backgroundColor": "#8fc1ff"
+  }
+}
