@@ -289,6 +289,155 @@ h2.wtitle b{color:var(--gold);}
   .hero .htxt p{font-size:13px;}
   .stat-row{gap:6px; margin-top:8px;}
 }
+
+/* ====================== 2026 VISUAL REFRESH ====================== */
+:root{
+  --ink:#252844;
+  --ink-soft:#5d6280;
+  --line:#292d4c;
+  --panel-2:#f5f6ff;
+}
+body{
+  min-height:100dvh;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255,255,255,.42) 0 5%, transparent 18%),
+    radial-gradient(circle at 88% 22%, rgba(255,232,151,.34) 0 4%, transparent 17%),
+    linear-gradient(165deg,#7ab8ff 0%,#9caeff 48%,#d9c8f7 100%);
+}
+.app-wrap{
+  padding-top:max(14px,env(safe-area-inset-top));
+  padding-bottom:max(30px,env(safe-area-inset-bottom));
+}
+.block{
+  border-width:2px;
+  border-radius:18px;
+  box-shadow:0 5px 0 rgba(35,39,67,.18),0 14px 30px rgba(47,50,105,.12),inset 1px 1px 0 rgba(255,255,255,.55);
+}
+.btn{
+  min-height:46px;
+  border-width:2px;
+  border-radius:14px;
+  box-shadow:0 4px 0 rgba(34,37,65,.22),inset 1px 1px 0 rgba(255,255,255,.35);
+  text-shadow:none;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(34,37,65,.22);}
+.btn.ghost{background:rgba(255,255,255,.92);}
+.topbar{flex-wrap:nowrap;gap:8px;margin-bottom:14px;}
+.logo{gap:8px;min-width:0;}
+.logo .cube{width:40px;height:40px;filter:drop-shadow(0 4px 5px rgba(35,43,91,.2));}
+.logo h1{font-size:21px;text-shadow:0 2px 0 var(--ink),1px 0 0 var(--ink),-1px 0 0 var(--ink);}
+.topright{gap:8px;min-width:0;}
+.sound-btn{width:44px;height:44px;border-radius:14px;flex:none;}
+.profile-chip{gap:8px;padding:5px 10px 5px 6px;border-radius:16px;min-width:0;background:rgba(255,255,255,.94);}
+.profile-chip .av{width:38px;height:38px;border-width:2px;border-radius:11px;}
+.profile-chip .who{min-width:0;}
+.profile-chip .who .nm{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;}
+.profile-chip .who .md{font-size:11px;}
+.hero{
+  padding:20px 20px 38px;
+  border-color:rgba(41,45,76,.9);
+  background:linear-gradient(145deg,#fff 0%,#f7f8ff 58%,#edf6ff 100%);
+  overflow:hidden;
+}
+.hero::before{
+  content:"";
+  position:absolute;right:-24px;top:-18px;width:170px;height:100px;
+  background:radial-gradient(circle at 25% 65%,rgba(123,92,255,.11) 0 8px,transparent 9px),radial-gradient(circle at 56% 30%,rgba(61,155,255,.1) 0 12px,transparent 13px),radial-gradient(circle at 82% 74%,rgba(255,207,63,.16) 0 10px,transparent 11px);
+  transform:rotate(9deg);
+}
+.hero .big-av{width:78px;height:78px;border-width:2px;border-radius:18px;box-shadow:0 7px 16px rgba(45,52,110,.15);}
+.hero .htxt{position:relative;z-index:1;}
+.hero .htxt h2{font-size:24px;letter-spacing:-.4px;}
+.hero .htxt p{line-height:1.35;}
+.stat{border:1.5px solid #dfe2f2;border-radius:999px;background:#fff;padding:7px 11px;box-shadow:0 3px 8px rgba(45,52,110,.08);}
+.today-hearts{right:17px;bottom:10px;}
+.today-hearts svg{width:20px;height:19px;}
+.section-title{
+  width:max-content;max-width:100%;margin:22px auto 14px;padding:7px 14px;
+  border-radius:999px;background:rgba(37,40,68,.72);font-size:12px;letter-spacing:.9px;text-shadow:none;
+}
+.grid{gap:13px;}
+.card{
+  appearance:none;width:100%;font-family:var(--body);color:var(--ink);text-align:center;
+  background:#fff;min-height:174px;border-color:rgba(41,45,76,.88);
+}
+.card .top{height:6px;}
+.card .body{padding:18px 13px 20px;}
+.card .ic{
+  width:62px;height:62px;padding:11px;margin:0 auto 11px;border-radius:20px;
+  background:#f5f5ff;box-shadow:inset 0 0 0 1px rgba(41,45,76,.06);
+}
+.card h3{font-size:15px;margin-bottom:6px;}
+.card p{font-size:13px;line-height:1.3;}
+.card:nth-child(1) .body{background:linear-gradient(180deg,rgba(123,92,255,.07),transparent 55%);}
+.card:nth-child(2) .body{background:linear-gradient(180deg,rgba(55,200,113,.08),transparent 55%);}
+.card:nth-child(3) .body{background:linear-gradient(180deg,rgba(255,159,67,.09),transparent 55%);}
+.card:nth-child(4) .body{background:linear-gradient(180deg,rgba(255,207,63,.13),transparent 55%);}
+.card:nth-child(5) .body{background:linear-gradient(180deg,rgba(34,198,198,.08),transparent 55%);}
+.card:nth-child(6) .body{background:linear-gradient(180deg,rgba(61,155,255,.08),transparent 55%);}
+.panel,.qcard,.result-card{border-radius:20px;}
+.panel{padding:21px;}
+.panel h2{font-size:18px;}
+.tile,.pill{border-width:2px;border-radius:16px;box-shadow:0 4px 0 rgba(35,39,67,.13),inset 1px 1px 0 rgba(255,255,255,.7);}
+.chip{border-width:2px;border-radius:12px;}
+.quiz-head{align-items:stretch;}
+.qmeta{
+  color:var(--ink);text-shadow:none;background:rgba(255,255,255,.82);border:1px solid rgba(41,45,76,.12);
+  border-radius:999px;padding:6px 9px;font-size:11px;display:flex;align-items:center;
+}
+.progress{height:11px;border:0;background:rgba(255,255,255,.58);box-shadow:inset 0 2px 5px rgba(34,37,65,.13);}
+.progress .bar{border-radius:999px;background:linear-gradient(90deg,#3fcf79,#29c4c4);}
+.qcard{background:linear-gradient(180deg,#fff,#f8f8ff);}
+.mult-q{font-size:52px;margin:10px 0 12px;letter-spacing:-2px;}
+.answer-display{border-width:2px;border-radius:15px;background:#fff;box-shadow:inset 0 2px 8px rgba(37,40,68,.08);}
+.keypad{gap:9px;}
+.key{border-width:2px;border-radius:14px;box-shadow:0 4px 0 rgba(35,39,67,.18);background:#fff;}
+.key:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(35,39,67,.18);}
+.modal-bg{background:rgba(26,29,57,.64);backdrop-filter:blur(7px);}
+.modal{border-radius:24px;padding:25px;box-shadow:0 18px 60px rgba(15,18,48,.3);}
+.name-input{border-width:2px;border-radius:14px;outline:none;}
+.name-input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(61,155,255,.18);}
+.av-opt{border-width:2px;border-radius:16px;}
+.footer-note{max-width:620px;margin:24px auto 0;line-height:1.45;color:rgba(37,40,68,.68);}
+.footer-pill{display:inline-block;background:rgba(255,255,255,.78);border:1px solid rgba(41,45,76,.1);border-radius:999px;padding:7px 14px;color:#3a3f63;font-size:12px;}
+body.playing .footer-note{display:none;}
+body.playing .topbar{margin-bottom:8px;}
+
+@media (max-width:480px){
+  .app-wrap{padding-left:10px;padding-right:10px;}
+  .logo .cube{width:36px;height:36px;}
+  .logo h1{font-size:18px;}
+  .sound-btn{width:40px;height:40px;}
+  .profile-chip{padding-right:8px;}
+  .profile-chip .av{width:34px;height:34px;}
+  .profile-chip .who .nm{max-width:66px;font-size:13px;}
+  .profile-chip .who .md{font-size:10px;}
+  .hero{padding:17px 14px 37px;}
+  .hero .big-av{width:62px;height:62px;}
+  .hero .htxt h2{font-size:20px;}
+  .hero .htxt p{font-size:13px;}
+  .stat{font-size:11px;padding:6px 8px;}
+  .stat b{font-size:11px;}
+  .today-hearts{position:static;flex:0 0 100%;justify-content:center;margin-top:2px;}
+  .grid{gap:11px;}
+  .card{min-height:162px;}
+  .card .body{padding:16px 10px 17px;}
+  .card .ic{width:55px;height:55px;padding:10px;border-radius:17px;}
+  .card h3{font-size:14px;}
+  .card p{font-size:12px;}
+  .panel{padding:17px 13px;}
+  .qcard{padding:16px 12px 18px;}
+  .mult-q{font-size:46px;}
+  .key{padding:14px 0;}
+  body.playing .logo h1{font-size:16px;}
+  body.playing .logo .cube{width:32px;height:32px;}
+  body.playing .profile-chip .who .md{display:none;}
+  body.playing .profile-chip .av{width:30px;height:30px;}
+  body.playing .sound-btn{width:36px;height:36px;min-height:36px;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}
+}
 </style>
 </head>
 <body>
@@ -322,7 +471,7 @@ h2.wtitle b{color:var(--gold);}
 
   <div id="screen"></div>
 
-  <div class="footer-note"><span style="display:inline-block;background:#fff;border:2px solid #e7e9f3;border-radius:999px;padding:5px 14px;color:#3a3f63;font-size:12px">🪐 Descubre el resto del <b>universo ÓrbitaKidx</b> · ¡sigue jugando y aprendiendo!</span><br><br>Una app de <b>ÓrbitaKidx</b><br><span style="font-size:11px">¿Tienes algo que decirnos? Escríbenos a <a href="mailto:orbitakidx@gmail.com" style="color:var(--blue-d);font-weight:700">orbitakidx@gmail.com</a></span></div>
+  <div class="footer-note"><span class="footer-pill">🪐 Descubre el universo <b>ÓrbitaKidx</b></span><br><br>Una app de <b>ÓrbitaKidx</b><br><span style="font-size:11px">¿Tienes algo que decirnos? Escríbenos a <a href="mailto:orbitakidx@gmail.com" style="color:var(--blue-d);font-weight:700">orbitakidx@gmail.com</a></span></div>
 </div>
 
 <div id="modalHost"></div>
@@ -559,7 +708,7 @@ function buildQuestions(topic, key, count){
 /* ====================== ESTADO DE NAVEGACIÓN ====================== */
 var QUIZ = null;
 
-function goHome(){ QUIZ=null; renderHome(); window.scrollTo(0,0); }
+function goHome(){ QUIZ=null; document.body.classList.remove("playing"); renderHome(); window.scrollTo(0,0); }
 
 /* ---------- chip / perfil ---------- */
 function refreshChip(){
@@ -602,12 +751,12 @@ function renderHome(){
   $("screen").innerHTML = html;
 }
 function modeCard(color, icon, title, sub, onclick){
-  return '<div class="card block" onclick="'+onclick+'">'
+  return '<button type="button" class="card block" onclick="'+onclick+'" aria-label="'+escapeHtml(title)+': '+escapeHtml(sub)+'">'
     + '<div class="top" style="background:'+color+'"></div>'
     + '<div class="body">'
     +   '<div class="ic"><svg viewBox="0 0 24 24" style="width:100%;height:100%" fill="'+color+'">'+iconPath(icon)+'</svg></div>'
     +   '<h3>'+title+'</h3><p>'+sub+'</p>'
-    + '</div></div>';
+    + '</div></button>';
 }
 
 /* ====================== PANTALLA: SELECCIÓN TABLAS ====================== */
@@ -731,6 +880,7 @@ function startQuiz(topic, key, label, isExam, diffForExam){
     input:"", answered:false, streak:0,
     cuaderno: ((topic==="suma" && (DATA.prefs ? DATA.prefs.stepSuma!==false : true)) || (topic==="resta" && (DATA.prefs ? DATA.prefs.stepResta!==false : true))), showHelp: !isExam, problemMistake:false, wrong:[]
   };
+  document.body.classList.add("playing");
   renderQuiz();
   window.scrollTo(0,0);
 }
@@ -1075,6 +1225,7 @@ function fmtQ(q){
   return q.a+" "+op+" "+q.b+" = "+q.answer;
 }
 function renderResults(score,total,stars,newly){
+  document.body.classList.remove("playing");
   sfx(score>=total?'win':'ok');
   var msgs=[
     "¡Lo has dado todo! 💪",
