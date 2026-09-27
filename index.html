@@ -262,6 +262,9 @@ body{
 .footer-note{text-align:center; color:rgba(32,35,58,.6); font-weight:700; font-size:12px; margin-top:18px;}
 .topright{display:flex; align-items:center; gap:10px;}
 .sound-btn{width:44px; height:44px; display:flex; align-items:center; justify-content:center; background:#fff; cursor:pointer; padding:0;}
+.course-chip{height:44px;min-width:50px;display:flex;align-items:center;justify-content:center;background:#fff;cursor:pointer;padding:0 10px;font-weight:900;color:var(--blue-d);}
+.course-note{background:#eef6ff;border:2px solid #c5ddfb;border-radius:14px;padding:12px;margin:12px 0 16px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+.course-note span{font-size:13px;font-weight:700;color:var(--ink-soft);}
 .wintro{text-align:center; padding:6px 2px;}
 .wglobe{width:120px; height:120px; margin:6px auto 12px; animation:wfloat 3s ease-in-out infinite;}
 .wglobe.sm{width:72px; height:72px; margin:4px auto 8px;}
@@ -458,6 +461,7 @@ body.playing .topbar{margin-bottom:8px;}
       <h1>Mate<b>x</b></h1>
     </div>
     <div class="topright">
+      <div class="course-chip block" id="courseChip" onclick="chooseCourse(false)" title="Cambiar curso">3.º</div>
       <div class="sound-btn block" id="soundBtn" onclick="toggleSound()" title="Sonido"></div>
       <div class="profile-chip block" onclick="openProfile()">
         <div class="av" id="chipAv"></div>
@@ -493,6 +497,7 @@ function defaultData(){
   return {
     name: "",
     avatar: 0,
+    grade: 3,
     onboarded: false,
     prefs: { stepSuma:true, stepResta:true, sound:true },
     stars: { mult:{}, suma:{}, resta:{} },     // mult: por tabla 1..10 ; suma/resta: por dificultad
@@ -529,6 +534,13 @@ function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
 function $(id){ return document.getElementById(id); }
 function starStr(n){ var s=""; for(var i=0;i<3;i++){ s += i<n ? "★" : "☆"; } return s; }
+function courseInfo(){ return [
+  {grade:1,short:"1.º",label:"1.º Primaria",level:"facil",focus:"sumas y restas hasta 10, sin llevar"},
+  {grade:2,short:"2.º",label:"2.º Primaria",level:"facil",focus:"hasta 100, primeras llevadas y tablas 2, 5 y 10"},
+  {grade:3,short:"3.º",label:"3.º Primaria",level:"medio",focus:"tablas y operaciones de dos cifras"},
+  {grade:4,short:"4.º",label:"4.º Primaria",level:"dificil",focus:"cálculo mixto y operaciones de tres cifras"}
+][Math.max(1,Math.min(4,DATA.grade||3))-1]; }
+function tablesForCourse(){ var g=DATA.grade||3; return g===1?[1,2]:g===2?[1,2,5,10]:[1,2,3,4,5,6,7,8,9,10]; }
 
 /* ====================== AVATARES (pixel-art 16x16) ====================== */
 var AVATARS = [{"name": "Heroe", "rows": ["................", ".....OOOOOO.....", "....OhhhhhhO....", "...OhhhhhhhhO...", "...ObbbbbbbbO...", "...OhsssssshO...", "...OssssssssO...", "...OswwsswwsO...", "...OswpsspwsO...", "...OSssssssSO...", "...OsssmmsssO...", "....OssssssO....", "..OOOOOssOOOOO..", ".OgggggbbgggggO.", ".OggggggggggggO.", ".OGGGGGGGGGGGGO."], "pal": {"s": "#f4c99c", "S": "#d6a271", "h": "#6e4a2a", "b": "#ffcd46", "w": "#ffffff", "p": "#20223a", "m": "#c46250", "g": "#3cc478", "G": "#289655", "O": "#15172a"}, "bg": ["#7bb7ff", "#a8d6ff"]}, {"name": "Ninja", "rows": ["................", "................", ".....OOOOOO.....", "....OkkkkkkOO...", "...OrrrrrrrrrO..", "...OkkkkkkkkOrO.", "...OswwsswwsOrO.", "...OswpsspwsOO..", "...OkkkkkkkkO...", "...OkkkkkkkkO...", "...OkkkkkkkkO...", "....OkkkkkkO....", "...OOOOOOOOOO...", "..OkkkkrrkkkkO..", "..OkkkkkkkkkkO..", "..OKKKKKKKKKKO.."], "pal": {"k": "#282c46", "K": "#1a1d30", "r": "#ff5046", "s": "#f4c99c", "w": "#ffffff", "p": "#20223a", "O": "#15172a"}, "bg": ["#505478", "#969abe"]}, {"name": "Zorro", "rows": ["................", "...OO......OO...", "..OffO....OffO..", "..OfiOOOOOOifO..", "..OfOffffffOfO..", "...OffffffffO...", "...OfwwffwwfO...", "...OfwpffpwfO...", "...OfOwwwwOfO...", "...OfwwnnwwfO...", "....OwwwwwwO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OfffwwwwfffO..", "..OfffwwwwfffO..", "..OFFFFFFFFFFO.."], "pal": {"f": "#ff8a3d", "F": "#d66a1e", "i": "#ffd0a8", "w": "#fff3e6", "p": "#20223a", "n": "#20223a", "O": "#15172a"}, "bg": ["#ffd1a0", "#ffaa6e"]}, {"name": "Robot", "rows": [".......OyO......", ".......OaO......", "....OOOOaOOO....", "...OaaaaaaaaO...", "..OAaaaaaaaAaO..", "..OaaaaaaaaAaO..", "..OaclcaaclcaO..", "..OacccaacccaO..", "..OaaaaaaaaAaO..", "..OaaAOAOAOAaO..", "...OaaaaaaaaAO..", "....OOOOOOOOO...", "...OOOOOOOOOO...", "..OaaaccccaaaO..", "..OaaaaaaaaaaO..", "..OAAAAAAAAAAO.."], "pal": {"a": "#bac4d8", "A": "#8793b0", "c": "#38e0ff", "l": "#dcfaff", "y": "#ffcd46", "O": "#15172a"}, "bg": ["#5a96c8", "#96c8eb"]}, {"name": "Gato", "rows": ["................", "................", "...OO......OO...", "..OccOOOOOOccO..", "..OcOccccccOcO..", "...OccccccccO...", "...OceecceecO...", "...OcepccpecO...", "...OccccccccO...", ".OOOcOwnnwOcOOO.", "....OwwwwwwO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OcccwwwwcccO..", "..OcccwwwwcccO..", "..OCCCCCCCCCCO.."], "pal": {"c": "#9aa3b5", "C": "#757e92", "k": "#ffc2d4", "w": "#ffffff", "e": "#78dc8c", "p": "#20223a", "n": "#ff8fb0", "O": "#15172a"}, "bg": ["#78aac8", "#b4cde1"]}, {"name": "Astronauta", "rows": ["................", "....OOOOOOOO....", "...OwwwwwwwwO...", "..OwwwwwwwwwwO..", "..OwwwwwwwwWwO..", "..OwOvvvvvvOwO..", "..OwvllvvvvvwO..", "..OwvlvvvvvvwO..", "..OwvvvvvvvvwO..", "..OwOvvvvlvOwO..", "..OwwwwwwwwWwO..", "...OwwwwwwwwO...", "....OOOOOOOO....", "...OolowwoloO...", "...OooowwoooO...", "...OzzzwwzzzO..."], "pal": {"w": "#eef3ff", "W": "#c7d2e6", "v": "#2b6fff", "l": "#bfe0ff", "o": "#ff7a59", "z": "#d65a3c", "O": "#15172a"}, "bg": ["#5a6eb4", "#96aae1"]}, {"name": "Dragona", "rows": ["................", ".....O....O.....", "....ODO..ODO....", "....ODOOOODO....", "....OddddddO....", "...OddddddddO...", "...OdwwddwwdO...", "...OdwpddpwdO...", "...OddddddddO...", "...OdbpbbpbdO...", "....ObbbbbbO....", "..OO.OOOOOO.OO..", ".OddOOOOOOOOddO.", ".OddddbbbbddddO.", ".OddddbbbbddddO.", "..OddddddddddO.."], "pal": {"d": "#56c85a", "D": "#ffde78", "b": "#d6f5b0", "w": "#ffffff", "p": "#20223a", "O": "#15172a"}, "bg": ["#8ce196", "#bef0c8"]}, {"name": "Maga", "rows": ["........O.......", ".......OyO......", ".......OmO......", "......OmmmO.....", "....OOmmmmmO....", "...OMMMMMMMMO...", "...OhOssssOhO...", "...OhwwsswwhO...", "...OhwpsspwhO...", "...OhssrrsshO...", "....OOssssOO....", "......OOOO......", "....OOOOOOOO....", "...OmmmmmmmmO...", "...OmmmmymmmO...", "...OmmmmmmmmO..."], "pal": {"m": "#7b5cff", "M": "#553bc4", "y": "#ffcd46", "s": "#f4c99c", "h": "#6e4a2a", "w": "#ffffff", "p": "#20223a", "r": "#c46250", "O": "#15172a"}, "bg": ["#b296ff", "#9678eb"]}, {"name": "Unicornio", "rows": ["........O.......", ".......OyO......", ".....O.OyO.O....", "....OuOOYOOuO...", "....OuuppuuppO..", "...OuuuuuuuppO..", "...OuwwuuwwppO..", "...OuwkuukwppO..", "...OuuuuuuuppO..", "...OuuPPPPuppO..", "....OuPkkPuppO..", ".....OOOOOOOO...", "...OOOOOOOOOO...", "..OppuuuuuuuuO..", "..OppuuuuuuuuO..", "..OppuuuuuuuuO.."], "pal": {"u": "#ffffff", "k": "#20223a", "p": "#ff8fb0", "P": "#ffd1e0", "y": "#ffcd46", "Y": "#e0a51e", "w": "#ffffff", "O": "#15172a"}, "bg": ["#ffc8e1", "#ffe1f0"]}, {"name": "Hada", "rows": ["................", "......O..O......", ".....OjOOjO.....", ".....OjOOjO.....", "....OjjjjjjO....", "....OOssssOO....", ".OOOjssssssjOOO.", "OqqOjwwsswwjOqqO", "OqqOjwpsspwjOqqO", ".OO.OOsrrsOO.OO.", "......OOOO......", "................", ".....OOOOOO.....", "....OggggggO....", "....OggyyggO....", "....OggggggO...."], "pal": {"q": "#b4ebff", "j": "#ffcd46", "s": "#f4c99c", "w": "#ffffff", "p": "#20223a", "r": "#ff8fb0", "g": "#3cc478", "y": "#ffffff", "O": "#15172a"}, "bg": ["#ffeeaa", "#ffd2eb"]}, {"name": "Panda", "rows": ["................", "................", "...OOO....OOO...", "..OkkkOOOOkkkO..", "..OkOwwwwwwOkO..", "..OkwwwwwwwwkO..", "...OwkkwwkkwO...", "...OwkwwwwkwO...", "...OwwwwwwwwO...", "...OwwwkkwwwO...", "....OwwwwwwO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OkkwwwwwwkkO..", "..OkkwwwwwwkkO..", "..OkkwwwwwwkkO.."], "pal": {"w": "#ffffff", "k": "#282a3c", "O": "#15172a"}, "bg": ["#96c896", "#c3e1c3"]}, {"name": "Conejo", "rows": [".....OO..OO.....", "....OccOOccO....", "....OkcOOckO....", "....OkcOOckO....", "....OccOOccO....", "....OccccccO....", "...OccccccccO...", "...OcwwccwwcO...", "...OcwpccpwcO...", "...OcccnncccO...", "....OccwwccO....", ".....OOOOOO.....", "....OOOOOOOO....", "...OccwwwwccO...", "...OccwwwwccO...", "...OccccccccO..."], "pal": {"c": "#e2e2ec", "w": "#ffffff", "p": "#20223a", "n": "#ff8fb0", "O": "#15172a"}, "bg": ["#ffe1eb", "#ebebfa"]}, {"name": "Buho", "rows": ["................", "....O......O....", "...OoOOOOOOoO...", "....OooooooO....", "...OooooooooO...", "...OwwwoowwwO...", "...OwwpoowpwO...", "...OwppooppwO...", "...OoooyyoooO...", "...OoooyooooO...", "....ObbbbbbO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OooobbbboooO..", "..OooobbbboooO..", "..OooooooooooO.."], "pal": {"o": "#966234", "w": "#fffaeb", "p": "#20223a", "y": "#ffaa3c", "b": "#d0aa6e", "O": "#15172a"}, "bg": ["#c4a06e", "#e1c8a0"]}, {"name": "Pinguino", "rows": ["................", "................", ".....OOOOOO.....", "....OkkkkkkO....", "...OkkkkkkkkO...", "...OkwwwwwwkO...", "...OkwpwwpwkO...", "...OkwwwwwwkO...", "...OkwwoowwkO...", "...OkwwoowwkO...", "....OkkkkkkO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OkkwwwwwwkkO..", "..OkkwwwwwwkkO..", "..OkkoowwookkO.."], "pal": {"k": "#2d3044", "w": "#ffffff", "p": "#20223a", "o": "#ffa032", "O": "#15172a"}, "bg": ["#78b4d2", "#b4d7eb"]}, {"name": "Pirata", "rows": ["................", "................", "....OOOOOOOO....", "...OrrrrrrrrO...", "..OrrwrrwrwrO...", ".OrOOskssssO....", ".OrOskksswwsO...", "..OOskksspwsO...", "...OssssssssO...", "...OssssssssO...", "....OssmmssO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OwwwwwwwwwwO..", "..ObbbbbbbbbbO..", "..ObbwbbwbbbbO.."], "pal": {"r": "#ff5046", "w": "#ffffff", "s": "#f4c99c", "k": "#20223a", "p": "#20223a", "m": "#c46250", "b": "#3c6ed2", "O": "#15172a"}, "bg": ["#e6786e", "#f5b478"]}, {"name": "Caballera", "rows": [".......OO.......", "......OrrO......", ".....OOrrOO.....", "....OaaaaaaO....", "...OaaaaaaaAO...", "...OaaaaaaaAO...", "...OaOOOOOOAO...", "...OaaaaaaaAO...", "...OaaOaOaOAO...", "...OaaaaaaaAO...", "...OaaaaaaaAO...", "....OaaaaaaO....", "...OOOOOOOOOO...", "..OaaaarraaaaO..", "..OaaaaaaaaaaO..", "..OAAAAAAAAAAO.."], "pal": {"a": "#bec8dc", "A": "#8c98b4", "r": "#ff5046", "O": "#15172a"}, "bg": ["#96a5cd", "#c3cde6"]}, {"name": "Vikinga", "rows": ["................", "..O..........O..", ".OwOOOOOOOOOOwO.", ".OwwaaaaaaaawwO.", ".OwwaaaaaaaawwO.", "..OOaaaaaaaaOO..", "...OssssssssO...", "...OswwsswwsO...", "...OswpsspwsO...", "..OjsssmmsssjO..", "..OjOssssssOjO..", "..OjOOOOOOOOjO..", "..OjOOOOOOOOjO..", "..OggggggggggO..", "..OggggggggggO..", "..OggggggggggO.."], "pal": {"a": "#aab4c8", "s": "#f4c99c", "j": "#ffcd46", "w": "#ffffff", "p": "#20223a", "m": "#c46250", "g": "#966234", "O": "#15172a"}, "bg": ["#b4c3d7", "#d7e1f0"]}, {"name": "Exploradora", "rows": ["................", ".....OOOOOO.....", "....OttttttO....", "....OttttttO....", "...OOttttttOO...", "..OTTTTTTTTTTO..", "...OOssssssOhhO.", "...OswwsswwshhO.", "...OswpsspwshhO.", "...OsssmmssshhO.", "....OssssssOOO..", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OgggTggTgggO..", "..OggggggggggO..", "..OggggggggggO.."], "pal": {"t": "#d6b26e", "T": "#966e3c", "s": "#f4c99c", "h": "#6e4a2a", "w": "#ffffff", "p": "#20223a", "m": "#c46250", "g": "#56aa5a", "O": "#15172a"}, "bg": ["#e6c88c", "#c8e1aa"]}, {"name": "Alien", "rows": [".....O....O.....", "....OyO..OyO....", "....OgO..OgO....", "....OgOOOOgO....", "....OggggggO....", "...OggggggggO...", "...OgwOggwOgO...", "...OgOOggOOgO...", "...OgOOggOOgO...", "...OggggggggO...", "....OggGGggO....", ".....OOOOOO.....", "....OOOOOOOO....", "...OggggggggO...", "...OggggggggO...", "...OggggggggO..."], "pal": {"g": "#78d282", "G": "#46a05a", "y": "#ffcd46", "w": "#ffffff", "O": "#15172a"}, "bg": ["#9678c8", "#b4a0dc"]}, {"name": "Mecha", "rows": ["........O.......", ".......OrO......", "...OOOOObOOOO...", "..ObbbbbbbbbbO..", "..ObbbbbbbbBbO..", "..ObbbbbbbbBbO..", "..OblcccccccbO..", "..ObccccccclbO..", "..ObbbbbbbbBbO..", "..ObbBOBOBOBbO..", "..ObbbbbbbbbbO..", "...OOOOOOOOOO...", "...OOOOOOOOOO...", "..ObbbbbbbbbbO..", "..OrrrrrrrrrrO..", "..ObbbbbbbbbbO.."], "pal": {"b": "#4678dc", "B": "#2d55aa", "c": "#38e0ff", "l": "#dcfaff", "r": "#ff5046", "O": "#15172a"}, "bg": ["#5a8cd2", "#96b4eb"]}, {"name": "Slime", "rows": ["................", "................", "................", "................", "......OOOO......", ".....OssssO.....", "....OlsssssO....", "...OssssssssO...", "..OslssssssssO..", "..OsswwsswwssO..", "..OsswpsspwssO..", "..OssssssssssO..", "..OsssppppsssO..", "..OssssssssssO..", "..OssssssssssO..", "...OOOOOOOOOO..."], "pal": {"s": "#5ad2c8", "w": "#ffffff", "p": "#20223a", "l": "#d2fffa", "O": "#15172a"}, "bg": ["#78e1d7", "#aaf0eb"]}, {"name": "Fantasma", "rows": ["................", "................", ".....qqqqqq.....", "....qwwwwwwq....", "...qwwwwwwwwq...", "....qwwwwwwq....", "...qwwOwwwOwq...", "...qwOOwwOOwq...", "...qwOOwwOOwq...", "...qwrwOOwrwq...", "...qwwwwwwwwq...", "...qwwwwwwwwq...", "...qwwwwwwwwq...", "...qwwqwwqwwq...", "...qwqqwwqqwq...", "....q..qq..q...."], "pal": {"w": "#f5f8ff", "O": "#464b64", "r": "#ffb4c8", "q": "#aab2cd"}, "bg": ["#96a0c8", "#c3cdeb"]}, {"name": "Dino", "rows": ["................", "........O.......", "......OOzOO.....", ".....OzOOOzO....", "....OddddddO....", "...OddddddddO...", "...OdwwddwwdO...", "...OdwpddpwdO...", "...OddddddddO...", "...OdbpbbpbdO...", "....ObbbbbbO....", ".....OOOOOO.....", "...OOOOOOOOOO...", "..OdddbbbbdddO..", "..OdddbbbbdddO..", "..OddddddddddO.."], "pal": {"d": "#43c6c0", "D": "#2a9a96", "b": "#d8f7f2", "z": "#ff9f43", "w": "#ffffff", "p": "#20223a", "O": "#15172a"}, "bg": ["#78decd", "#aaecde"]}, {"name": "Heroina", "rows": ["................", "................", "....OOOOOOOO....", "...OhhhhhhhhO...", "...OhhhhhhhhO...", "...OhOssssOhO...", "...OmwwmmwwmO...", "...OmwpmmpwmO...", "...OhsssssshO...", "...OhsssssshO...", "....OOsoosOO....", "......OOOO......", "...OOOOOOOOOO...", "..OCCccccccCCO..", "..OCCccyyccCCO..", "..OCCccccccCCO.."], "pal": {"h": "#6e4a2a", "s": "#f4c99c", "m": "#ff5046", "w": "#ffffff", "p": "#20223a", "o": "#c46250", "c": "#3d7beb", "C": "#d64646", "y": "#ffcd46", "O": "#15172a"}, "bg": ["#7896eb", "#b4c8f5"]}, {"name": "Sirena", "rows": ["................", "................", "....OOOOOOOO....", "...OhhhhhhhhO...", "...OhkhhhhhhO...", "...OhOssssOhO...", "...OhsssssshO...", "...OhwwsswwhO...", "...OhwpsspwhO...", "...OhsssssshO...", "...OhOsmmsOhO...", "...OhOOOOOOhO...", "...OOOOOOOOOO...", "..OhhtttttthhO..", "..OhhtttttthhO..", "..OhhtttttthhO.."], "pal": {"h": "#2bc6c6", "s": "#f4c99c", "w": "#ffffff", "p": "#20223a", "m": "#c46250", "t": "#785ac8", "k": "#ff8fb0", "O": "#15172a"}, "bg": ["#78e1eb", "#a0ebf5"]}, {"name": "Princesa", "rows": ["........O.......", "......OOyOO.....", ".....OyOgOyO....", "....OyyyyyyyO...", "...OhhhhhhhhO...", "...OhOssssOhO...", "...OhsssssshO...", "...OhwwsswwhO...", "...OhwpsspwhO...", "...OhsssssshO...", "....OOsmmsOO....", "......OOOO......", "...OOOOOOOOOO...", "..OddddddddddO..", "..OddddggddddO..", "..OddddddddddO.."], "pal": {"y": "#ffcd46", "g": "#7ad2ff", "h": "#966432", "s": "#f4c99c", "w": "#ffffff", "p": "#20223a", "m": "#c46250", "d": "#ff6fae", "O": "#15172a"}, "bg": ["#ffc8e1", "#ffe1f5"]}, {"name": "Bailarina", "rows": ["................", ".......OO.......", "......OhhO......", "....OOOhhOOO....", "...OhhhhhhhhO...", "...OhOssssOhO...", "...OhsssssshO...", "...OhwwsswwhO...", "....OwpsspwO....", "....OssssssO....", ".....OsmmsO.....", "......OOOO......", ".....OOOOOO.....", "...OOdddyddOO...", "..OttddddddttO..", "..OttddddddttO.."], "pal": {"h": "#6e4a2a", "s": "#f4c99c", "w": "#ffffff", "p": "#20223a", "m": "#c46250", "d": "#ff6fae", "t": "#ffc8e1", "y": "#ffcd46", "O": "#15172a"}, "bg": ["#ffcde1", "#ffe6f5"]}, {"name": "Cientifica", "rows": ["................", "................", "....OOOOOOOO....", "...OhhhhhhhhO...", "...OhhhhhhhhO...", "...OhOssssOhO...", "...OhsssssshO...", "...OkwwkswwkO...", "....OwpsspwO....", "....OssssssO....", ".....OsmmsO.....", "......OOOO......", "...OOOOOOOOOO...", "..OccrcttccccO..", "..OccccttccccO..", "..OccccttccccO.."], "pal": {"h": "#5a3c28", "s": "#f4c99c", "w": "#ffffff", "p": "#20223a", "k": "#20223a", "m": "#c46250", "c": "#f5f8ff", "t": "#3cc478", "r": "#ff5046", "O": "#15172a"}, "bg": ["#b4c8e1", "#d7e1f0"]}, {"name": "Mariquita", "rows": [".....O....O.....", "....OkOOOOkO....", "....OkkkkkkO....", ".....OwkkwO.....", ".....OkkkkO.....", "....OrrkkrrO....", "...OrrrkkrrrO...", "...OrkrkkrkrO...", "...OrrrkkrrrO...", "...OrrrkkrrrO...", "...OrkrkkrkrO...", "...OrrkkkkrrO...", "....OrrkkrrO....", ".....OOOOOO.....", "................", "................"], "pal": {"r": "#ff5046", "k": "#20223a", "w": "#ffffff", "O": "#15172a"}, "bg": ["#ffb478", "#ffd4a0"]}, {"name": "Mariposa", "rows": ["......O..O......", ".....OkOOkO.....", ".....OkOOkO.....", "....OOOOOOOO....", "...OiiObbOiiO...", "..OiwiibbiiwiO..", "..OiiiiwwiiiiO..", "...OiiObbOiiO...", "....OOObbOOO....", "....OvObbOvO....", "...OvwvbbvwvO...", "...OvvvbbvvvO...", "....OvObbOvO....", ".....O.OO.O.....", "................", "................"], "pal": {"b": "#3c3e5c", "i": "#ff6fae", "v": "#7b5cff", "w": "#ffffff", "k": "#20223a", "O": "#15172a"}, "bg": ["#ffd2eb", "#cddeff"]}];
@@ -642,13 +654,15 @@ function genMult(table){
   return { kind:"mult", a:table, b:b, answer:table*b };
 }
 function genMultMixed(){
-  var a = rnd(2,10), b = rnd(2,10);
+  var pool=tablesForCourse().filter(function(n){return n>1;}), a=pick(pool), b=rnd(2,10);
   return { kind:"mult", a:a, b:b, answer:a*b };
 }
 // Suma llevando — garantiza acarreo en unidades
 function genSuma(diff){
   var a,b;
-  if(diff==="facil"){           // 2 cifras + 1 cifra
+  if(diff==="facil" && (DATA.grade||3)===1){
+    a=rnd(0,10); b=rnd(0,10-a);
+  } else if(diff==="facil"){           // 2 cifras + 1 cifra
     var ua=rnd(2,8); var ta=rnd(1,8);
     var ub=rnd(10-ua,9);        // fuerza llevada en unidades
     a = ta*10+ua; b = ub;
@@ -666,7 +680,9 @@ function genSuma(diff){
 // Resta llevando — garantiza préstamo en unidades y resultado positivo
 function genResta(diff){
   var a,b;
-  if(diff==="facil"){           // 2 cifras - 1 cifra con préstamo
+  if(diff==="facil" && (DATA.grade||3)===1){
+    a=rnd(1,10); b=rnd(0,a);
+  } else if(diff==="facil"){           // 2 cifras - 1 cifra con préstamo
     var ua=rnd(0,7); var ta=rnd(2,9);
     var ub=rnd(ua+1,9);         // unidad de b mayor que la de a -> presta
     a = ta*10+ua; b = ub;
@@ -716,6 +732,7 @@ function refreshChip(){
   $("chipAv").innerHTML = avatarSVG(DATA.avatar);
   $("chipName").textContent = DATA.name || "Jugador";
   $("chipMedals").textContent = unlockedCount();
+  $("courseChip").textContent = courseInfo().short;
 }
 
 /* ====================== PANTALLA: INICIO ====================== */
@@ -731,7 +748,7 @@ function renderHome(){
   +   '<div class="big-av">'+avatarSVG(DATA.avatar)+'</div>'
   +   '<div class="htxt">'
   +     '<h2>¡Hola, '+escapeHtml(DATA.name||"jugador")+'!</h2>'
-  +     '<p>¿Listo para jugar hoy? Elige un mundo para entrenar.</p>'
+  +     '<p>'+courseInfo().label+' · '+courseInfo().focus+'.</p>'
   +     '<div class="stat-row">'
   +       '<div class="stat">✅ <b>'+s.totalCorrect+'</b> aciertos</div>'
   +       '<div class="stat">🔥 mejor racha <b>'+s.bestStreak+'</b></div>'
@@ -742,9 +759,9 @@ function renderHome(){
   + '</div>'
   + '<div class="section-title">ELIGE TU MUNDO</div>'
   + '<div class="grid">'
-  +   modeCard("var(--purple)","times","Tablas","Multiplicar del 1 al 10","selMult()")
-  +   modeCard("var(--green)","plus","Sumas","Con llevadas, fácil a difícil","selSuma()")
-  +   modeCard("var(--orange)","minus","Restas","Con llevadas, fácil a difícil","selResta()")
+  +   (DATA.grade===1?'':modeCard("var(--purple)","times","Tablas","Las tablas de tu curso","selMult()"))
+  +   modeCard("var(--green)","plus","Sumas",DATA.grade===1?"Hasta 10 y sin llevar":"Con llevadas, fácil a difícil","selSuma()")
+  +   modeCard("var(--orange)","minus","Restas",DATA.grade===1?"Hasta 10 y sin llevar":"Con llevadas, fácil a difícil","selResta()")
   +   modeCard("var(--gold)","target","Examen","Pon a prueba lo aprendido","selExam()")
   +   modeCard("var(--teal)","star","Medallas","Mira tus logros","renderMedallas()")
   +   modeCard("var(--blue)","trophy","Progreso","Tu mapa de estrellas","renderProgress()")
@@ -762,16 +779,17 @@ function modeCard(color, icon, title, sub, onclick){
 
 /* ====================== PANTALLA: SELECCIÓN TABLAS ====================== */
 function selMult(){
+  var ci=courseInfo(),tables=tablesForCourse();
   var html = backBar("Tablas de multiplicar")
-   + '<div class="panel block"><h2>Elige una tabla</h2><p class="sub">Empieza por las pequeñas. Cuando domines varias, ¡prueba el Reto Mixto!</p>'
+   + '<div class="panel block"><h2>Elige una tabla</h2><div class="course-note"><span><b>'+ci.label+':</b> '+ci.focus+'.</span></div><p class="sub">Empieza por las pequeñas y avanza a tu ritmo.</p>'
    + '<div class="tables-grid">';
-  for(var t=1;t<=10;t++){
+  for(var ti=0;ti<tables.length;ti++){ var t=tables[ti];
     var st = DATA.stars.mult[t]||0;
     html += '<div class="tile" onclick="studyTable('+t+')">'
       + '<div class="tn">'+t+'</div><div class="tl">tabla</div><div class="st">'+starStr(st)+'</div></div>';
   }
-  html += '<div class="tile mixto" onclick="startQuiz(\'mult\',\'mix\',\'Reto Mixto\',false)">'
-       + '<div class="tn">RETO<br>MIXTO</div><div class="tl">todas las tablas</div></div>';
+  if((DATA.grade||3)>=3) html += '<div class="tile mixto" onclick="startQuiz(\'mult\',\'mix\',\'Reto Mixto\',false)">'
+       + '<div class="tn">RETO<br>MIXTO</div><div class="tl">tablas de tu curso</div></div>';
   html += '</div></div>';
   $("screen").innerHTML = html; window.scrollTo(0,0);
 }
@@ -813,10 +831,10 @@ function renderStudy(){
 function toggleStudy(){ STUDY.hidden=!STUDY.hidden; renderStudy(); }
 function revealCell(el,ans){ el.outerHTML='<b>'+ans+'</b>'; }
 
-function selSuma(){ renderDiffSelect("suma","Sumas con llevadas","var(--green)",
-  ["2 cifras + 1 cifra","2 cifras + 2 cifras","3 cifras + 3 cifras"]); }
-function selResta(){ renderDiffSelect("resta","Restas con llevadas","var(--orange)",
-  ["2 cifras − 1 cifra","2 cifras − 2 cifras","3 cifras − 3 cifras"]); }
+function selSuma(){ var first=DATA.grade===1; renderDiffSelect("suma",first?"Sumas":"Sumas con llevadas","var(--green)",
+  first?["Hasta 10","Hasta 20","Hasta 100"]:["2 cifras + 1 cifra","2 cifras + 2 cifras","3 cifras + 3 cifras"]); }
+function selResta(){ var first=DATA.grade===1; renderDiffSelect("resta",first?"Restas":"Restas con llevadas","var(--orange)",
+  first?["Hasta 10","Hasta 20","Hasta 100"]:["2 cifras − 1 cifra","2 cifras − 2 cifras","3 cifras − 3 cifras"]); }
 
 var _stepCtx=null, _stepTopic="suma";
 function setStep(v){ if(!DATA.prefs) DATA.prefs={}; DATA.prefs[_stepTopic==="suma"?"stepSuma":"stepResta"]=v; saveData(); if(_stepCtx) _stepCtx(); }
@@ -825,11 +843,13 @@ function renderDiffSelect(topic, title, color, descs){
   _stepTopic = topic;
   var keys=["facil","medio","dificil"], labels=["Fácil","Medio","Difícil"], cls=["facil","medio","dificil"];
   var step = (!DATA.prefs) || (DATA.prefs[topic==="suma"?"stepSuma":"stepResta"]!==false);
+  var ci=courseInfo();
   var html = backBar(title)
    + '<div class="panel block"><h2>¿Cómo practicar?</h2>'
    + '<div class="seg"><div class="seg-btn'+(step?' on':'')+'" onclick="setStep(true)">Paso a paso</div>'
    +   '<div class="seg-btn'+(step?'':' on')+'" onclick="setStep(false)">Solo el resultado</div></div>'
    + '<p class="sub">'+(step?'Te guía con las llevadas, como en el cuaderno.':'Escribe la respuesta con el método que prefieras.')+'</p>'
+   + '<div class="course-note"><span><b>'+ci.label+':</b> '+ci.focus+'.</span><div class="btn green sm" onclick="startQuiz(\''+topic+'\',\''+ci.level+'\',\''+title+' · '+ci.label+'\',false)">Jugar mi nivel</div></div>'
    + '<div style="font-weight:900;margin:8px 0 10px">Elige la dificultad</div>'
    + '<div class="pills">';
   for(var i=0;i<3;i++){
@@ -844,10 +864,11 @@ function renderDiffSelect(topic, title, color, descs){
 /* ====================== PANTALLA: EXAMEN ====================== */
 var examSel = { topic:"mult", diff:"medio" };
 function selExam(){
+  examSel.diff=courseInfo().level; if(DATA.grade===1&&(examSel.topic==="mult"||examSel.topic==="mixexam")) examSel.topic="suma";
   var html = backBar("Examen")
    + '<div class="panel block"><h2>Prepara tu examen</h2><p class="sub">10 preguntas, sin segundas oportunidades. ¡Consigue 10/10 para una medalla!</p>'
    + '<div style="font-weight:900;margin:4px 0 6px">Tema</div><div class="choose-row" id="examTopic">'
-   +   examChip("mult","Tablas") + examChip("suma","Sumas") + examChip("resta","Restas") + examChip("mixexam","Todo mezclado")
+   +   (DATA.grade===1?examChip("suma","Sumas")+examChip("resta","Restas"):examChip("mult","Tablas")+examChip("suma","Sumas")+examChip("resta","Restas")+examChip("mixexam","Todo mezclado"))
    + '</div>'
    + '<div style="font-weight:900;margin:10px 0 6px">Dificultad</div><div class="choose-row" id="examDiff">'
    +   examDiffChip("facil","Fácil") + examDiffChip("medio","Medio") + examDiffChip("dificil","Difícil")
@@ -873,7 +894,7 @@ function startExam(){
 /* ====================== MOTOR DE QUIZ ====================== */
 function startQuiz(topic, key, label, isExam, diffForExam){
   if(!OrbitakidxAccess.requireMatex(topic,key,isExam)) return;
-  var count = 10;
+  var count = isExam?10:(DATA.grade===1?6:DATA.grade===2?8:10);
   var qs = buildQuestions(topic==="mult"?"mult":(topic==="mixexam"?"mixexam":topic), key, count);
   QUIZ = {
     topic: topic, key: key, label: label, isExam: !!isExam,
@@ -1348,8 +1369,8 @@ function confirmReset(){
     + '<div class="btn ghost" onclick="closeModal()">Cancelar</div></div>');
 }
 function doReset(){
-  var name=DATA.name, av=DATA.avatar;
-  DATA = defaultData(); DATA.name=name; DATA.avatar=av; DATA.onboarded=true;
+  var name=DATA.name, av=DATA.avatar, grade=DATA.grade, prefs=DATA.prefs;
+  DATA = defaultData(); DATA.name=name; DATA.avatar=av; DATA.grade=grade; DATA.prefs=prefs; DATA.onboarded=true;
   saveData(); closeModal(); refreshChip(); goHome();
 }
 
@@ -1371,11 +1392,12 @@ function pickAv(i){
   for(var k=0;k<opts.length;k++){ opts[k].classList.toggle('on', parseInt(opts[k].getAttribute('data-i'),10)===i); }
   /* el botón ¡A jugar! queda fijo abajo; sin auto-scroll */
 }
-function saveProfile(){
+function saveProfile(first){
   var inp=$("nameInput");
   var n = inp ? inp.value.trim() : (WNAME||"");
   DATA.name = n || "Jugador";
   DATA.avatar = pickAvIdx;
+  if(first){ saveData(); closeModal(); chooseCourse(true); return; }
   DATA.onboarded = true;
   saveData(); refreshChip(); closeModal(); renderHome(); sfx('win');
 }
@@ -1443,7 +1465,7 @@ function wStep(n){
     for(var i=0;i<AVATARS.length;i++){ avs += '<div class="av-opt'+(i===0?' on':'')+'" data-i="'+i+'" onclick="pickAv('+i+')">'+avatarSVG(i)+'</div>'; }
     showModal('<h2>Elige tu personaje</h2><p>Será tu compañero en el juego.</p>'
       + '<div class="av-pick" id="avPick">'+avs+'</div>'
-      + '<div class="pick-go"><div class="btn gold" onclick="saveProfile()">¡A JUGAR!</div></div>', true);
+      + '<div class="pick-go"><div class="btn gold" onclick="saveProfile(true)">Siguiente</div></div>', true);
   }
 }
 function wName(){ var i=document.getElementById('nameInput'); WNAME=(i&&i.value.trim())||"Jugador"; sfx('tap'); wStep(2); }
@@ -1456,6 +1478,8 @@ function showModal(inner, noClose){
   $("modalHost").innerHTML=''; $("modalHost").appendChild(bg);
 }
 function closeModal(){ $("modalHost").innerHTML=''; }
+function chooseCourse(first){ var html='<h2>¿En qué curso estás?</h2><p>Así adaptamos los números, las tablas y las operaciones.</p><div class="pills">'; for(var g=1;g<=4;g++){ var ci=["Hasta 10, sin llevar","Hasta 100 y primeras tablas","Tablas y dos cifras","Cálculo mixto y tres cifras"][g-1]; html+='<div class="pill '+((DATA.grade||3)===g?'medio':'facil')+'" onclick="setCourse('+g+')"><div class="pl">'+g+'.º Primaria</div><div class="pd">'+ci+'</div></div>'; } html+='</div>'; showModal(html,!!first); }
+function setCourse(g){ DATA.grade=g; DATA.onboarded=true; saveData(); refreshChip(); closeModal(); renderHome(); sfx('win'); }
 
 /* ---------- toast medallas ---------- */
 function toast(a){

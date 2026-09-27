@@ -24,6 +24,7 @@ Los niños pueden entrenar las tablas de multiplicar, resolver sumas y restas co
 
 Qué incluye Matex:
 
+- Curso configurable de 1.º a 4.º de Primaria, con números y operaciones adaptados.
 - Tablas de multiplicar del 1 al 10.
 - Sumas y restas con dificultad progresiva.
 - Ejercicios guiados y modo examen.

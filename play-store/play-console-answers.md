@@ -13,7 +13,7 @@
 
 - La aplicación no recopila datos.
 - La aplicación no comparte datos con terceros.
-- El nombre o apodo, avatar y progreso se guardan únicamente de forma local en el dispositivo y no se transmiten.
+- El nombre o apodo, avatar, curso elegido y progreso se guardan únicamente de forma local en el dispositivo y no se transmiten.
 - No hay cuentas de usuario ni solicitudes de eliminación de cuenta.
 
 ## Público objetivo y contenido
